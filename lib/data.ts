@@ -1,0 +1,371 @@
+import { Property, User, Inquiry } from './types';
+
+// Mock Users
+export const MOCK_USERS: User[] = [
+  {
+    id: 'user-1',
+    name: 'Rajesh Kumar',
+    email: 'rajesh@example.com',
+    phone: '+91 98765 43210',
+    role: 'user',
+    registrationDate: '2024-01-15',
+    bio: 'Professional real estate agent in Mumbai with 10+ years experience',
+  },
+  {
+    id: 'user-2',
+    name: 'Priya Sharma',
+    email: 'priya@example.com',
+    phone: '+91 98765 43211',
+    role: 'user',
+    registrationDate: '2024-02-20',
+    bio: 'Interior designer and property enthusiast',
+  },
+  {
+    id: 'user-3',
+    name: 'Amit Patel',
+    email: 'amit@example.com',
+    phone: '+91 98765 43212',
+    role: 'user',
+    registrationDate: '2024-03-10',
+    bio: 'Luxury villa specialist in Goa',
+  },
+  {
+    id: 'user-4',
+    name: 'Sneha Reddy',
+    email: 'sneha@example.com',
+    phone: '+91 98765 43213',
+    role: 'user',
+    registrationDate: '2024-01-22',
+    bio: 'Investor focusing on Bangalore tech hubs',
+  },
+  {
+    id: 'admin-1',
+    name: 'Admin Upfoxx',
+    email: 'admin@upfoxx.com',
+    phone: '+91 99999 00000',
+    role: 'admin',
+    registrationDate: '2023-12-01',
+    bio: 'Platform administrator',
+  },
+];
+
+// Mock Properties
+export const MOCK_PROPERTIES: Property[] = [
+  {
+    id: 'prop-1',
+    title: 'Modern Luxury Apartment in Bandra',
+    description: 'Stunning 3-bedroom apartment in the heart of Bandra West with breathtaking sea views, premium finishes, and smart home technology.',
+    propertyType: 'apartment',
+    listingType: 'sale',
+    price: 75000000,
+    location: 'Hill Road, Bandra West, Mumbai',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    zipcode: '400050',
+    bedrooms: 3,
+    bathrooms: 2,
+    area: 1800,
+    amenities: [
+      { id: 'ac', name: 'AC' },
+      { id: 'parking', name: 'Parking' },
+      { id: 'balcony', name: 'Balcony' },
+      { id: 'gym', name: 'Gym' },
+    ],
+    images: [
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
+    ],
+    listingDate: '2024-02-15',
+    viewCount: 3450,
+    sellerId: 'user-1',
+    status: 'approved',
+  },
+  {
+    id: 'prop-2',
+    title: 'Spacious Villa with Private Garden',
+    description: 'Beautiful 4-bedroom independent villa with a large landscaped garden, perfect for families. Located in a posh gated community.',
+    propertyType: 'villa',
+    listingType: 'sale',
+    price: 45000000,
+    location: 'Whitefield Main Road, Bangalore',
+    city: 'Bangalore',
+    state: 'Karnataka',
+    zipcode: '560066',
+    bedrooms: 4,
+    bathrooms: 3,
+    area: 3200,
+    amenities: [
+      { id: 'parking', name: 'Parking' },
+      { id: 'garden', name: 'Garden' },
+      { id: 'pool', name: 'Swimming Pool' },
+    ],
+    images: [
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&h=600&fit=crop',
+    ],
+    listingDate: '2024-02-10',
+    viewCount: 2100,
+    sellerId: 'user-2',
+    status: 'approved',
+  },
+  {
+    id: 'prop-3',
+    title: 'Cozy Studio near Cyber Hub',
+    description: 'Perfect for working professionals. Modern studio apartment in a vibrant area with excellent connectivity to corporate parks.',
+    propertyType: 'apartment',
+    listingType: 'rent',
+    price: 45000,
+    location: 'DLF Phase 3, Gurgaon',
+    city: 'Gurgaon',
+    state: 'Haryana',
+    zipcode: '122002',
+    bedrooms: 1,
+    bathrooms: 1,
+    area: 550,
+    amenities: [
+      { id: 'ac', name: 'AC' },
+      { id: 'wifi', name: 'WiFi' },
+      { id: 'elevator', name: 'Elevator' },
+    ],
+    images: [
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
+    ],
+    listingDate: '2024-02-20',
+    viewCount: 1850,
+    sellerId: 'user-3',
+    status: 'approved',
+  },
+  {
+    id: 'prop-4',
+    title: 'Portuguese Style Beach Villa',
+    description: 'Exclusive 5-bedroom villa with private pool and direct beach access. Fully furnished with antique artifacts.',
+    propertyType: 'villa',
+    listingType: 'sale',
+    price: 120000000,
+    location: 'Candolim, North Goa',
+    city: 'Goa',
+    state: 'Goa',
+    zipcode: '403515',
+    bedrooms: 5,
+    bathrooms: 4,
+    area: 4500,
+    amenities: [
+      { id: 'pool', name: 'Swimming Pool' },
+      { id: 'parking', name: 'Parking' },
+      { id: 'gym', name: 'Gym' },
+      { id: 'security', name: '24/7 Security' },
+      { id: 'garden', name: 'Garden' },
+    ],
+    images: [
+      'https://images.unsplash.com/photo-1494145904049-0dca7dc20248?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1512917774080-9a485dc46885?w=800&h=600&fit=crop',
+    ],
+    listingDate: '2024-01-25',
+    viewCount: 5200,
+    sellerId: 'user-1',
+    status: 'approved',
+  },
+  {
+    id: 'prop-5',
+    title: 'Premium Corporate Office Space',
+    description: 'Modern office space in prime business district of BKC. Ideal for multinational companies.',
+    propertyType: 'commercial',
+    listingType: 'rent',
+    price: 350000,
+    location: 'BKC, Mumbai',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    zipcode: '400051',
+    bedrooms: 0,
+    bathrooms: 2,
+    area: 2500,
+    amenities: [
+      { id: 'parking', name: 'Parking' },
+      { id: 'security', name: '24/7 Security' },
+      { id: 'wifi', name: 'WiFi' },
+      { id: 'elevator', name: 'Elevator' },
+    ],
+    images: [
+      'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop',
+    ],
+    listingDate: '2024-02-05',
+    viewCount: 1200,
+    sellerId: 'user-4',
+    status: 'approved',
+  },
+  {
+    id: 'prop-6',
+    title: 'Residential Plot for Development',
+    description: 'Excellent square plot in a rapidly developing area. High potential for capital appreciation.',
+    propertyType: 'plot',
+    listingType: 'sale',
+    price: 8500000,
+    location: 'Sector 150, Noida',
+    city: 'Noida',
+    state: 'Uttar Pradesh',
+    zipcode: '201301',
+    bedrooms: 0,
+    bathrooms: 0,
+    area: 2700,
+    amenities: [],
+    images: [
+      'https://images.unsplash.com/photo-1580587771525-78991c7a2de9?w=800&h=600&fit=crop',
+    ],
+    listingDate: '2024-02-18',
+    viewCount: 890,
+    sellerId: 'user-2',
+    status: 'approved',
+  },
+  {
+    id: 'prop-7',
+    title: 'Penthouse at Sky Heights',
+    description: 'Ultra-luxury duplex penthouse with private terrace pool and panoramic views of the city skyline.',
+    propertyType: 'apartment',
+    listingType: 'sale',
+    price: 150000000,
+    location: 'Worli, Mumbai',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    zipcode: '400018',
+    bedrooms: 4,
+    bathrooms: 4,
+    area: 4800,
+    amenities: [
+      { id: 'ac', name: 'AC' },
+      { id: 'pool', name: 'Swimming Pool' },
+      { id: 'gym', name: 'Gym' },
+      { id: 'security', name: '24/7 Security' },
+      { id: 'elevator', name: 'Elevator' },
+    ],
+    images: [
+      'https://images.unsplash.com/photo-1512917774080-9a485dc46885?w=800&h=600&fit=crop',
+    ],
+    listingDate: '2024-02-08',
+    viewCount: 4100,
+    sellerId: 'user-3',
+    status: 'approved',
+  },
+  {
+    id: 'prop-8',
+    title: 'Renovated Heritage House',
+    description: 'Beautifully restored heritage home combining classic architecture with modern amenities. High ceilings and wooden floors.',
+    propertyType: 'house',
+    listingType: 'rent',
+    price: 120000,
+    location: 'Koramangala 3rd Block, Bangalore',
+    city: 'Bangalore',
+    state: 'Karnataka',
+    zipcode: '560034',
+    bedrooms: 3,
+    bathrooms: 3,
+    area: 2400,
+    amenities: [
+      { id: 'parking', name: 'Parking' },
+      { id: 'garden', name: 'Garden' },
+      { id: 'wifi', name: 'WiFi' },
+    ],
+    images: [
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
+    ],
+    listingDate: '2024-02-12',
+    viewCount: 1340,
+    sellerId: 'user-4',
+    status: 'approved',
+  },
+];
+
+// Mock Inquiries
+export const MOCK_INQUIRIES: Inquiry[] = [
+  {
+    id: 'inq-1',
+    propertyId: 'prop-1',
+    buyerId: 'user-2',
+    sellerEmail: 'john@example.com',
+    sellerPhone: '555-0101',
+    buyerName: 'Sarah Property',
+    buyerEmail: 'sarah@example.com',
+    buyerPhone: '555-0102',
+    message: 'Interested in viewing this property. Can we schedule a time?',
+    status: 'new',
+    createdAt: '2024-02-21',
+  },
+  {
+    id: 'inq-2',
+    propertyId: 'prop-1',
+    buyerId: 'user-3',
+    sellerEmail: 'john@example.com',
+    sellerPhone: '555-0101',
+    buyerName: 'Mike Johnson',
+    buyerEmail: 'mike@example.com',
+    buyerPhone: '555-0103',
+    message: 'What is the best time to visit?',
+    status: 'contacted',
+    createdAt: '2024-02-20',
+  },
+  {
+    id: 'inq-3',
+    propertyId: 'prop-2',
+    buyerId: 'user-1',
+    sellerEmail: 'sarah@example.com',
+    sellerPhone: '555-0102',
+    buyerName: 'John Seller',
+    buyerEmail: 'john@example.com',
+    buyerPhone: '555-0101',
+    message: 'Perfect family home! Is the pool included?',
+    status: 'contacted',
+    createdAt: '2024-02-19',
+  },
+  {
+    id: 'inq-4',
+    propertyId: 'prop-4',
+    buyerId: 'user-4',
+    sellerEmail: 'john@example.com',
+    sellerPhone: '555-0101',
+    buyerName: 'Emily Davis',
+    buyerEmail: 'emily@example.com',
+    buyerPhone: '555-0104',
+    message: 'Very interested in this villa. Can we discuss financing options?',
+    status: 'new',
+    createdAt: '2024-02-21',
+  },
+  {
+    id: 'inq-5',
+    propertyId: 'prop-7',
+    buyerId: 'user-2',
+    sellerEmail: 'mike@example.com',
+    sellerPhone: '555-0103',
+    buyerName: 'Sarah Property',
+    buyerEmail: 'sarah@example.com',
+    buyerPhone: '555-0102',
+    message: 'Interested in the penthouse. Any flexibility on price?',
+    status: 'new',
+    createdAt: '2024-02-21',
+  },
+];
+
+// Helper function to get properties by seller ID
+export function getPropertiesBySeller(sellerId: string): Property[] {
+  return MOCK_PROPERTIES.filter((prop) => prop.sellerId === sellerId);
+}
+
+// Helper function to get inquiries by property ID
+export function getInquiriesByProperty(propertyId: string): Inquiry[] {
+  return MOCK_INQUIRIES.filter((inq) => inq.propertyId === propertyId);
+}
+
+// Helper function to get inquiries for seller's properties
+export function getSellerInquiries(sellerId: string): Inquiry[] {
+  const sellerProperties = getPropertiesBySeller(sellerId);
+  const propertyIds = sellerProperties.map((p) => p.id);
+  return MOCK_INQUIRIES.filter((inq) => propertyIds.includes(inq.propertyId));
+}
+
+// Helper function to get user by ID
+export function getUserById(userId: string): User | undefined {
+  return MOCK_USERS.find((user) => user.id === userId);
+}
+
+// Helper function to get property by ID
+export function getPropertyById(propertyId: string): Property | undefined {
+  return MOCK_PROPERTIES.find((prop) => prop.id === propertyId);
+}
