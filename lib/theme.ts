@@ -1,24 +1,24 @@
 export const theme = {
   colors: {
-    // Primary Colors
+    // Primary Colors — Dark Blue (Trust)
     primary: {
-      main: '#0A0E27',        // Deep navy (dark mode bg)
-      light: '#1A1F3A',       // Lighter navy
-      dark: '#050711',        // Pure dark
+      main: '#1B2B5A',        // Dark blue
+      light: '#2A4080',       // Lighter blue
+      dark: '#0F1B3D',        // Deeper blue
     },
 
-    // Accent Colors
+    // Accent Colors — Gold (Premium)
     accent: {
-      main: '#6C5CE7',        // Purple accent
-      light: '#A29BFE',       // Light purple
-      dark: '#5849C7',        // Dark purple
-      gradient: 'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)',
+      main: '#D4A843',        // Gold accent
+      light: '#E8C66A',       // Light gold
+      dark: '#B8922C',        // Dark gold
+      gradient: 'linear-gradient(135deg, #1B2B5A 0%, #D4A843 100%)',
     },
 
-    // Secondary Colors
+    // Secondary Colors — Dark Blue
     secondary: {
-      main: '#00D4FF',        // Cyan accent
-      light: '#4DDFFF',
+      main: '#1B2B5A',        // Dark blue
+      light: '#2A4080',
     },
 
     // Glass Effects
@@ -75,8 +75,8 @@ export const theme = {
 
   typography: {
     fontFamily: {
-      primary: 'Inter, system-ui, sans-serif',
-      heading: 'Inter, system-ui, sans-serif',
+      primary: 'Open Sans, system-ui, sans-serif',
+      heading: 'Poppins, system-ui, sans-serif',
     },
     fontSize: {
       xs: '0.75rem',      // 12px
@@ -124,8 +124,8 @@ export const theme = {
     md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
     lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
     xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-    glow: '0 0 20px rgba(108, 92, 231, 0.3)',
-    glowCyan: '0 0 20px rgba(0, 212, 255, 0.3)',
+    glow: '0 0 20px rgba(212, 168, 67, 0.3)',
+    glowGold: '0 0 20px rgba(212, 168, 67, 0.3)',
   },
 };
 

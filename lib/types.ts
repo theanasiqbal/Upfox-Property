@@ -13,7 +13,7 @@ export interface User {
 }
 
 // Property Types
-export type PropertyType = 'apartment' | 'house' | 'villa' | 'plot' | 'commercial';
+export type PropertyType = 'apartment' | 'house' | 'villa' | 'plot' | 'commercial' | 'office' | 'co-working' | 'meeting-room';
 export type ListingType = 'sale' | 'rent';
 export type PropertyStatus = 'pending' | 'approved' | 'rejected' | 'archived';
 
@@ -43,6 +43,10 @@ export interface Property {
   sellerId: string;
   status: PropertyStatus;
   rejectionReason?: string;
+  featured: boolean;
+  ownerName: string;
+  ownerPhone: string;
+  ownerEmail: string;
 }
 
 // Inquiry Types

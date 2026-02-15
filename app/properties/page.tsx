@@ -31,7 +31,7 @@ export default function PropertiesPage() {
   const filteredProperties = useMemo(() => {
     return MOCK_PROPERTIES.filter((prop) => {
       if (prop.status !== 'approved') return false;
-      if (filters.cities.length > 0 && !filters.cities.includes(prop.city)) return false;
+      if (filters.cities.length > 0 && !filters.cities.includes(prop.location)) return false;
       if (filters.propertyTypes.length > 0 && !filters.propertyTypes.includes(prop.propertyType))
         return false;
       if (filters.listingTypes.length > 0 && !filters.listingTypes.includes(prop.listingType))

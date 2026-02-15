@@ -16,6 +16,8 @@ import {
   User as UserIcon,
   Phone,
   Mail,
+  MessageCircle,
+  CheckCircle,
 } from 'lucide-react';
 
 interface PropertyDetailClientProps {
@@ -153,7 +155,7 @@ export function PropertyDetailClient({
                   key={amenity.id}
                   className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10"
                 >
-                  <span className="text-accent-purple text-lg">{amenity.icon}</span>
+                  <CheckCircle className="w-4 h-4 text-accent-purple flex-shrink-0" />
                   <span className="text-sm text-gray-700 dark:text-gray-300">{amenity.name}</span>
                 </div>
               ))}
@@ -178,10 +180,60 @@ export function PropertyDetailClient({
 
         {/* Right Column - Contact / Inquiry */}
         <div className="space-y-6">
-          {/* Seller Card */}
+          {/* Owner / Direct Contact Card */}
+          <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 font-heading">Contact Owner</h3>
+            <div className="flex items-center gap-4 mb-5">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-dark-blue to-gold flex items-center justify-center text-white text-lg font-bold">
+                {property.ownerName?.charAt(0) || 'O'}
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 dark:text-white">{property.ownerName || 'Owner'}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Property Owner</p>
+              </div>
+            </div>
+
+            {/* Contact details */}
+            <div className="space-y-3 mb-5">
+              {property.ownerPhone && (
+                <a href={`tel:${property.ownerPhone}`} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors">
+                  <Phone className="w-4 h-4" />
+                  +91 {property.ownerPhone}
+                </a>
+              )}
+              {property.ownerEmail && (
+                <a href={`mailto:${property.ownerEmail}`} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors">
+                  <Mail className="w-4 h-4" />
+                  {property.ownerEmail}
+                </a>
+              )}
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="space-y-3">
+              <a
+                href={`tel:${property.ownerPhone || ''}`}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-dark-blue hover:bg-dark-blue-dark text-white font-semibold rounded-xl text-sm transition-all"
+              >
+                <Phone className="w-4 h-4" />
+                Call Now
+              </a>
+              <a
+                href={`https://wa.me/91${property.ownerPhone || ''}?text=${encodeURIComponent(`Hi, I am interested in: ${property.title}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl text-sm transition-all"
+              >
+                <MessageCircle className="w-4 h-4" />
+                WhatsApp
+              </a>
+            </div>
+          </div>
+
+          {/* Listed By (Seller from system) */}
           {seller && (
             <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Listed By</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 font-heading">Listed By</h3>
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent-purple to-accent-purple-dark flex items-center justify-center text-white text-lg font-bold">
                   {seller.name.charAt(0)}

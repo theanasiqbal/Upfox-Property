@@ -33,8 +33,13 @@ export function PropertyCard({ property, showSaveButton = true }: PropertyCardPr
               {property.listingType === 'rent' ? 'For Rent' : 'For Sale'}
             </span>
             <span className="px-3 py-1 text-xs font-semibold text-white bg-black/40 backdrop-blur-sm rounded-full capitalize">
-              {property.propertyType}
+              {property.propertyType.replace('-', ' ')}
             </span>
+            {property.featured && (
+              <span className="px-3 py-1 text-xs font-semibold text-white bg-gold/90 backdrop-blur-sm rounded-full">
+                ★ Featured
+              </span>
+            )}
           </div>
 
           {/* Price on image */}

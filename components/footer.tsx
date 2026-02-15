@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Facebook, Twitter, Instagram, Linkedin, Home, Mail, Phone, MapPin } from 'lucide-react';
+import { CONTACT } from '@/lib/constants';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -12,39 +13,40 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-accent-purple to-accent-purple-dark rounded-lg flex items-center justify-center text-white">
+              <div className="w-8 h-8 bg-gradient-to-br from-dark-blue to-gold rounded-lg flex items-center justify-center text-white">
                 <Home className="w-4 h-4" />
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">Upfoxx</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white font-heading">Upfoxx Floors</span>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
-              Your trusted premium real estate marketplace. Discover elegant homes with modern design and seamless experiences.
+              Your trusted premium real estate & workspace solutions provider in Bareilly. Find verified properties, office spaces, and co-working hubs.
             </p>
             <div className="space-y-3">
-              <a href="mailto:info@upfoxx.com" className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors">
+              <a href={`mailto:${CONTACT.email}`} className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors">
                 <Mail className="w-4 h-4" />
-                info@upfoxx.com
+                {CONTACT.email}
               </a>
-              <a href="tel:+1234567890" className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors">
+              <a href={`tel:${CONTACT.phone}`} className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors">
                 <Phone className="w-4 h-4" />
-                +1 234 567 890
+                +91 {CONTACT.phone}
               </a>
               <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <MapPin className="w-4 h-4 flex-shrink-0" />
-                123 Main St, Business Bay
+                {CONTACT.address}
               </div>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-gray-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">Quick Links</h3>
+            <h3 className="text-gray-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider font-heading">Quick Links</h3>
             <ul className="space-y-3">
               {[
                 { label: 'Home', href: '/' },
                 { label: 'Properties', href: '/properties' },
-                { label: 'About Us', href: '#' },
-                { label: 'Contact', href: '#' },
+                { label: 'Services', href: '/services' },
+                { label: 'About Us', href: '/about' },
+                { label: 'Contact', href: '/contact' },
               ].map((link) => (
                 <li key={link.label}>
                   <Link href={link.href} className="text-gray-500 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light text-sm transition-colors">
@@ -57,27 +59,42 @@ export function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="text-gray-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">Services</h3>
+            <h3 className="text-gray-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider font-heading">Services</h3>
             <ul className="space-y-3">
-              {['Buy Property', 'Rent Property', 'Sell Property', 'Property Management'].map((item) => (
+              {[
+                'Office Space for Rent',
+                'Co-Working Spaces',
+                'Meeting Rooms',
+                'Residential Rentals',
+                'Commercial Properties',
+                'Virtual Office',
+                'Property Management',
+              ].map((item) => (
                 <li key={item}>
-                  <a href="#" className="text-gray-500 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light text-sm transition-colors">
+                  <Link href="/services" className="text-gray-500 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light text-sm transition-colors">
                     {item}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* About */}
+          {/* Locations */}
           <div>
-            <h3 className="text-gray-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">Company</h3>
+            <h3 className="text-gray-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider font-heading">Locations</h3>
             <ul className="space-y-3">
-              {['How it works', 'Pricing', 'Reviews', 'Careers'].map((item) => (
+              {[
+                'Civil Lines, Bareilly',
+                'Rajendra Nagar',
+                'CB Ganj',
+                'Pilibhit Bypass',
+                'Subhash Nagar',
+                'Izatnagar',
+              ].map((item) => (
                 <li key={item}>
-                  <a href="#" className="text-gray-500 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light text-sm transition-colors">
+                  <Link href="/properties" className="text-gray-500 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light text-sm transition-colors">
                     {item}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -89,7 +106,7 @@ export function Footer() {
       <div className="border-t border-gray-200 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-500 dark:text-gray-500">
-            © {currentYear} Upfoxx Properties. All rights reserved.
+            © {currentYear} Upfoxx Floors. All rights reserved.
           </p>
 
           <div className="flex gap-4">

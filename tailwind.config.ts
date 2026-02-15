@@ -69,13 +69,23 @@ const config: Config = {
           600: '#252B4A',
         },
         'accent-purple': {
-          DEFAULT: '#6C5CE7',
-          light: '#A29BFE',
-          dark: '#5849C7',
+          DEFAULT: '#D4A843',
+          light: '#E8C66A',
+          dark: '#B8922C',
         },
         'accent-cyan': {
-          DEFAULT: '#00D4FF',
-          light: '#4DDFFF',
+          DEFAULT: '#1B2B5A',
+          light: '#2A4080',
+        },
+        gold: {
+          DEFAULT: '#D4A843',
+          light: '#E8C66A',
+          dark: '#B8922C',
+        },
+        'dark-blue': {
+          DEFAULT: '#1B2B5A',
+          light: '#2A4080',
+          dark: '#0F1B3D',
         },
       },
       borderRadius: {
@@ -84,7 +94,8 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-open-sans)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': {

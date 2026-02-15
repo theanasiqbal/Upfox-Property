@@ -35,7 +35,7 @@ export function FilterPanel({ onFilterChange, className = '' }: FilterPanelProps
   const [maxPrice, setMaxPrice] = useState('');
 
   // Get unique values from data
-  const cities = [...new Set(MOCK_PROPERTIES.map((p) => p.city))];
+  const cities = [...new Set(MOCK_PROPERTIES.map((p) => p.location))];
   const propertyTypes = [...new Set(MOCK_PROPERTIES.map((p) => p.propertyType))];
   const listingTypes = [...new Set(MOCK_PROPERTIES.map((p) => p.listingType))];
 
