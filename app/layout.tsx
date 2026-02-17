@@ -4,6 +4,8 @@ import { Inter, Poppins, Open_Sans } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/lib/auth-context'
 import { ThemeProvider } from '@/components/theme-provider'
+import { EnquiryPopup } from '@/components/enquiry-popup'
+import { RateUsButton } from '@/components/rate-us-button'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -43,6 +45,8 @@ export default function RootLayout({
         >
           <AuthProvider>
             {children}
+            <EnquiryPopup />
+            <RateUsButton />
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -1,24 +1,24 @@
 export const theme = {
   colors: {
-    // Primary Colors — Dark Blue (Trust)
+    // Primary Colors — Dark Navy (Trust)
     primary: {
-      main: '#1B2B5A',        // Dark blue
-      light: '#2A4080',       // Lighter blue
-      dark: '#0F1B3D',        // Deeper blue
+      main: '#1A3A5C',        // Dark navy
+      light: '#245078',       // Lighter navy
+      dark: '#0F2440',        // Deeper navy
     },
 
-    // Accent Colors — Gold (Premium)
+    // Accent Colors — Cyan / Sky Blue (matching logo glow)
     accent: {
-      main: '#D4A843',        // Gold accent
-      light: '#E8C66A',       // Light gold
-      dark: '#B8922C',        // Dark gold
-      gradient: 'linear-gradient(135deg, #1B2B5A 0%, #D4A843 100%)',
+      main: '#5BADE5',        // Sky blue / cyan
+      light: '#8CC8EE',       // Light cyan
+      dark: '#3A8FCC',        // Deeper cyan
+      gradient: 'linear-gradient(135deg, #1A3A5C 0%, #5BADE5 100%)',
     },
 
-    // Secondary Colors — Dark Blue
+    // Secondary Colors — Dark Navy
     secondary: {
-      main: '#1B2B5A',        // Dark blue
-      light: '#2A4080',
+      main: '#1A3A5C',        // Dark navy
+      light: '#245078',
     },
 
     // Glass Effects
@@ -124,8 +124,8 @@ export const theme = {
     md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
     lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
     xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-    glow: '0 0 20px rgba(212, 168, 67, 0.3)',
-    glowGold: '0 0 20px rgba(212, 168, 67, 0.3)',
+    glow: '0 0 20px rgba(91, 173, 229, 0.3)',
+    glowCyan: '0 0 20px rgba(91, 173, 229, 0.3)',
   },
 };
 

@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X, LogOut, Home } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 
@@ -54,9 +55,13 @@ export function SidebarNav({ items, title = 'Menu' }: SidebarNavProps) {
           {/* Header */}
           <div className="p-6 border-b border-gray-200 dark:border-white/10">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-accent-purple to-accent-purple-dark rounded-lg flex items-center justify-center text-white">
-                <Home className="w-4 h-4" />
-              </div>
+              <Image
+                src="/upfoxx logo.png"
+                alt="Upfoxx Floors"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
               <span className="text-lg font-bold text-gray-900 dark:text-white">{title}</span>
             </Link>
           </div>

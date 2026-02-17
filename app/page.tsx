@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/header';
@@ -10,6 +10,7 @@ import { StickyMobileCTA } from '@/components/sticky-mobile-cta';
 import { PropertyCard } from '@/components/property-card';
 import { MOCK_PROPERTIES } from '@/lib/data';
 import { CITIES, PROPERTY_TYPES, CONTACT } from '@/lib/constants';
+import { PostPropertyDialog } from '@/components/post-property-dialog';
 import {
   Search, Home, Users, Trophy, Award, Briefcase, CheckCircle, Phone,
   ArrowRight, Building2, Handshake, ShieldCheck, ChevronDown, MapPin,
@@ -63,7 +64,7 @@ export default function HomePage() {
     {
       name: 'Neha Agarwal',
       role: 'Startup Founder',
-      text: 'The co-working space is incredible value for money. Starting at ₹999, I get WiFi, AC, tea/coffee — everything a startup needs. The community here is very supportive.',
+      text: 'The co-working space is incredible value for money. Starting at \u20B9999, I get WiFi, AC, tea/coffee \u2014 everything a startup needs. The community here is very supportive.',
       rating: 5,
     },
     {
@@ -73,6 +74,20 @@ export default function HomePage() {
       rating: 5,
     },
   ];
+
+  const [allTestimonials, setAllTestimonials] = useState(testimonials);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('upfoxx_user_reviews');
+      if (stored) {
+        const userReviews = JSON.parse(stored);
+        if (Array.isArray(userReviews) && userReviews.length > 0) {
+          setAllTestimonials([...testimonials, ...userReviews]);
+        }
+      }
+    } catch { }
+  }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-navy-800">
@@ -376,7 +391,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, idx) => (
+            {allTestimonials.map((testimonial, idx) => (
               <div key={idx} className="bg-gray-50 dark:bg-white/5 dark:backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-8 hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300">
                 <Quote className="w-8 h-8 text-accent-purple/30 mb-4" />
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6 italic">
@@ -427,20 +442,19 @@ export default function HomePage() {
               <MessageCircle className="w-5 h-5" />
               WhatsApp Now
             </a>
-            <Link
-              href="/dashboard/seller/properties/new"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gold hover:bg-gold-dark text-white font-bold rounded-full hover:scale-105 transition-all duration-300 text-lg shadow-xl"
-            >
-              Post Your Property
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+            <PostPropertyDialog trigger={
+              <span className="inline-flex items-center gap-2 px-8 py-4 bg-gold hover:bg-gold-dark text-white font-bold rounded-full hover:scale-105 transition-all duration-300 text-lg shadow-xl">
+                Post Your Property
+                <ArrowRight className="w-5 h-5" />
+              </span>
+            } />
           </div>
         </div>
       </section>
 
       <Footer />
       <WhatsAppButton />
-      <StickyMobileCTA />
+      {/* <StickyMobileCTA /> */}
     </div>
   );
 }

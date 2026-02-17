@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { Menu, X, Sun, Moon, Home, Phone } from 'lucide-react';
+import { Menu, X, Sun, Moon, Phone } from 'lucide-react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { CONTACT } from '@/lib/constants';
+import { PostPropertyDialog } from '@/components/post-property-dialog';
 
 export function Header() {
   const { currentUser, logout } = useAuth();
@@ -32,9 +34,13 @@ export function Header() {
           {/* Logo Section */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-dark-blue to-gold rounded-lg flex items-center justify-center text-white">
-                <Home className="w-4 h-4" />
-              </div>
+              <Image
+                src="/upfoxx logo.png"
+                alt="Upfoxx Floors"
+                width={36}
+                height={36}
+                className="rounded-lg"
+              />
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-gray-900 dark:text-white font-heading leading-tight">Upfoxx Floors</span>
               </div>
@@ -59,14 +65,6 @@ export function Header() {
 
           {/* Right Side Section */}
           <div className="flex items-center gap-3">
-            {/* Call Button — Desktop */}
-            <a
-              href={`tel:${CONTACT.phone}`}
-              className="hidden md:flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-accent-purple hover:text-accent-purple-dark transition-colors"
-            >
-              <Phone className="w-4 h-4" />
-              <span>{CONTACT.phone}</span>
-            </a>
 
             {/* Theme Toggle */}
             <button
@@ -95,12 +93,7 @@ export function Header() {
                     >
                       Dashboard
                     </Link>
-                    <Link
-                      href="/dashboard/seller/properties/new"
-                      className="px-4 py-2 btn-gradient text-sm font-bold rounded-full"
-                    >
-                      Post Property
-                    </Link>
+                    <PostPropertyDialog />
                   </>
                 )}
                 <div className="h-4 w-[1px] bg-gray-200 dark:bg-white/10" />
@@ -119,12 +112,7 @@ export function Header() {
                 >
                   Login
                 </Link>
-                <Link
-                  href="/auth/signup"
-                  className="px-6 py-2 btn-gradient text-sm font-bold rounded-full shadow-lg"
-                >
-                  Sign Up
-                </Link>
+                <PostPropertyDialog />
               </div>
             )}
 
@@ -174,13 +162,11 @@ export function Header() {
                       >
                         Dashboard
                       </Link>
-                      <Link
-                        href="/dashboard/seller/properties/new"
-                        className="block px-4 py-3 btn-gradient rounded-xl text-sm text-center font-semibold"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        Post Property
-                      </Link>
+                      <PostPropertyDialog trigger={
+                        <span className="block px-4 py-3 btn-gradient rounded-xl text-sm text-center font-semibold">
+                          Post Property
+                        </span>
+                      } />
                     </>
                   )}
                   <button
@@ -195,6 +181,11 @@ export function Header() {
                 </>
               ) : (
                 <>
+                  <PostPropertyDialog trigger={
+                    <span className="block px-4 py-3 rounded-xl text-sm">
+                      Post Property
+                    </span>
+                  } />
                   <Link
                     href="/auth/login"
                     className="block px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl text-sm font-medium"

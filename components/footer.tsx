@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Facebook, Twitter, Instagram, Linkedin, Home, Mail, Phone, MapPin } from 'lucide-react';
+import Image from 'next/image';
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
 import { CONTACT } from '@/lib/constants';
 
 export function Footer() {
@@ -13,9 +14,13 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-dark-blue to-gold rounded-lg flex items-center justify-center text-white">
-                <Home className="w-4 h-4" />
-              </div>
+              <Image
+                src="/upfoxx logo.png"
+                alt="Upfoxx Floors"
+                width={36}
+                height={36}
+                className="rounded-lg"
+              />
               <span className="text-xl font-bold text-gray-900 dark:text-white font-heading">Upfoxx Floors</span>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">

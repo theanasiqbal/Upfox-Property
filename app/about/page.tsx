@@ -125,14 +125,12 @@ export default function AboutPage() {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                         {[
-                            'Admin-approved properties — no fake listings',
                             'Dedicated focus on Bareilly & Civil Lines',
                             'Workspace solutions — office, co-working, meeting rooms',
                             'Transparent pricing with no hidden charges',
                             'End-to-end property management services',
                             'Virtual office services for GST registration',
                             'Secure inquiry system with SSL encryption',
-                            'Fast, mobile-first, premium design',
                         ].map((feature, idx) => (
                             <div key={idx} className="flex items-center gap-3 p-4 bg-white dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10">
                                 <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
