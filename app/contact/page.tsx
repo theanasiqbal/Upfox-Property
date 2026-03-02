@@ -69,7 +69,7 @@ function ContactForm() {
         `w-full px-4 py-3 bg-white dark:bg-white/5 border ${errors[name] ? 'border-red-400' : 'border-gray-200 dark:border-white/10'} rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 text-sm transition-all`;
 
     return (
-        <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-8 border border-gray-100 dark:border-white/10">
+        <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-8 border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 font-heading">Send Us a Message</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Fill in the form and our team will get back to you within 24 hours.</p>
 

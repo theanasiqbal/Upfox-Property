@@ -180,7 +180,7 @@ export default function PropertiesPage() {
             {isFetching ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="bg-white dark:bg-white/5 rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10 shadow-sm animate-pulse">
+                  <div key={i} className="bg-white dark:bg-white/5 rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none animate-pulse">
                     <div className="h-56 bg-gray-200 dark:bg-white/5" />
                     <div className="p-5 space-y-4">
                       <div className="h-6 bg-gray-200 dark:bg-white/5 rounded-md w-3/4" />
@@ -225,7 +225,7 @@ export default function PropertiesPage() {
                 )}
               </>
             ) : (
-              <div className="text-center py-20 bg-white dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/10">
+              <div className="text-center py-20 bg-white dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
                 <p className="text-xl text-gray-600 dark:text-gray-300">
                   {isFilterActive
                     ? "No properties found matching your criteria."

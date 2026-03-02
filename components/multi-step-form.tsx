@@ -70,7 +70,7 @@ export function MultiStepForm({
       </div>
 
       {/* Form Content */}
-      <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 p-6 md:p-8">
+      <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none p-6 md:p-8">
         {children}
       </div>
 

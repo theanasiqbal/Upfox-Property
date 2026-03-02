@@ -45,7 +45,7 @@ export function InquiryForm({ propertyId, propertyTitle }: InquiryFormProps) {
 
   if (isSubmitted) {
     return (
-      <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 p-8 text-center">
+      <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none p-8 text-center">
         <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
         </div>
@@ -56,7 +56,7 @@ export function InquiryForm({ propertyId, propertyTitle }: InquiryFormProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 p-6">
+    <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none p-6">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Send Inquiry</h3>
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">

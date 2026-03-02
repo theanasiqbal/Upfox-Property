@@ -64,7 +64,7 @@ export default function AboutPage() {
             <section className="py-20 bg-gray-50 dark:bg-navy-900 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl p-8 border border-gray-100 dark:border-white/10">
+                        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl p-8 border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
                             <div className="w-14 h-14 bg-accent-purple/10 dark:bg-accent-purple/20 rounded-2xl flex items-center justify-center mb-6">
                                 <Target className="w-7 h-7 text-accent-purple" />
                             </div>
@@ -74,7 +74,7 @@ export default function AboutPage() {
                             </p>
                         </div>
 
-                        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl p-8 border border-gray-100 dark:border-white/10">
+                        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl p-8 border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
                             <div className="w-14 h-14 bg-accent-purple/10 dark:bg-accent-purple/20 rounded-2xl flex items-center justify-center mb-6">
                                 <Eye className="w-7 h-7 text-accent-purple" />
                             </div>
@@ -84,7 +84,7 @@ export default function AboutPage() {
                             </p>
                         </div>
 
-                        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl p-8 border border-gray-100 dark:border-white/10">
+                        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl p-8 border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
                             <div className="w-14 h-14 bg-accent-purple/10 dark:bg-accent-purple/20 rounded-2xl flex items-center justify-center mb-6">
                                 <Award className="w-7 h-7 text-accent-purple" />
                             </div>
@@ -107,7 +107,7 @@ export default function AboutPage() {
                             { number: '10+', label: 'Areas Covered', icon: Target },
                             { number: '100%', label: 'Verified Listings', icon: ShieldCheck },
                         ].map((stat, idx) => (
-                            <div key={idx} className="bg-gray-50 dark:bg-white/5 rounded-2xl p-8 text-center border border-gray-100 dark:border-white/10 hover:scale-105 transition-all duration-300 group">
+                            <div key={idx} className="bg-gray-50 dark:bg-white/5 rounded-2xl p-8 text-center border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none hover:shadow-xl dark:hover:shadow-xl hover:scale-105 transition-all duration-300 group">
                                 <stat.icon className="w-8 h-8 text-accent-purple mx-auto mb-4 group-hover:scale-110 transition-transform" />
                                 <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2 font-heading">{stat.number}</p>
                                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</p>
@@ -132,7 +132,7 @@ export default function AboutPage() {
                             'Virtual office services for GST registration',
                             'Secure inquiry system with SSL encryption',
                         ].map((feature, idx) => (
-                            <div key={idx} className="flex items-center gap-3 p-4 bg-white dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10">
+                            <div key={idx} className="flex items-center gap-3 p-4 bg-white dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
                                 <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
                                 <span className="text-sm text-gray-700 dark:text-gray-300">{feature}</span>
                             </div>

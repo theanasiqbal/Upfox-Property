@@ -17,7 +17,7 @@ export function PropertyCard({ property, showSaveButton = true }: PropertyCardPr
 
   return (
     <Link href={`/properties/${property.id}`} className="block group">
-      <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10 hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300 hover:-translate-y-1">
+      <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none hover:shadow-xl dark:hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300 hover:-translate-y-1">
         {/* Image */}
         <div className="relative h-56 overflow-hidden">
           <img

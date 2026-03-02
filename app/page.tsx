@@ -311,7 +311,7 @@ export default function HomePage() {
                 <Link
                   key={idx}
                   href={service.href}
-                  className="bg-white dark:bg-white/5 dark:backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-6 hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300 group text-center"
+                  className="bg-white dark:bg-white/5 dark:backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-none hover:shadow-xl dark:hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300 group text-center"
                 >
                   <div className="w-14 h-14 bg-accent-purple/10 dark:bg-accent-purple/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <Icon className="w-7 h-7 text-accent-purple" />
@@ -385,7 +385,7 @@ export default function HomePage() {
               { icon: Users, title: 'Dedicated Support', description: 'Our team is available to assist you throughout your property search and transaction journey.' },
               { icon: Briefcase, title: 'Professional Management', description: 'End-to-end property management services for owners including tenant handling and maintenance.' },
             ].map((item, idx) => (
-              <div key={idx} className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl p-8 border border-gray-100 dark:border-white/10 hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300 group">
+              <div key={idx} className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl p-8 border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none hover:shadow-xl dark:hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300 group">
                 <div className="w-14 h-14 bg-accent-purple/10 dark:bg-accent-purple/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <item.icon className="w-7 h-7 text-accent-purple" />
                 </div>
@@ -465,7 +465,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {allTestimonials.map((testimonial, idx) => (
-              <div key={idx} className="bg-gray-50 dark:bg-white/5 dark:backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-8 hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300">
+              <div key={idx} className="bg-gray-50 dark:bg-white/5 dark:backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-8 shadow-sm dark:shadow-none hover:shadow-xl dark:hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300">
                 <Quote className="w-8 h-8 text-accent-purple/30 mb-4" />
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6 italic">
                   &ldquo;{testimonial.text}&rdquo;
@@ -497,7 +497,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               href="/contact?type=tour"
-              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
+              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm dark:shadow-none hover:shadow-xl dark:hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
             >
               <div className="w-14 h-14 btn-gradient rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Calendar className="w-7 h-7 text-white" />
@@ -507,7 +507,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/contact?type=quote"
-              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
+              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm dark:shadow-none hover:shadow-xl dark:hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
             >
               <div className="w-14 h-14 bg-dark-blue rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Tag className="w-7 h-7 text-white" />
@@ -517,7 +517,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/partner"
-              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
+              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm dark:shadow-none hover:shadow-xl dark:hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
             >
               <div className="w-14 h-14 bg-gold rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Users2 className="w-7 h-7 text-white" />
@@ -527,7 +527,7 @@ export default function HomePage() {
             </Link>
             <a
               href={`tel:${CONTACT.phone}`}
-              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
+              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm dark:shadow-none hover:shadow-xl dark:hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
             >
               <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Phone className="w-7 h-7 text-white" />

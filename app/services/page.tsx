@@ -53,7 +53,7 @@ export default function ServicesPage() {
                             >
                                 {/* Icon / Visual */}
                                 <div className="flex-shrink-0 w-full lg:w-2/5">
-                                    <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-12 flex items-center justify-center border border-gray-100 dark:border-white/10">
+                                    <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-12 flex items-center justify-center border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
                                         <div className="w-24 h-24 bg-accent-purple/10 dark:bg-accent-purple/20 rounded-3xl flex items-center justify-center">
                                             <Icon className="w-12 h-12 text-accent-purple" />
                                         </div>

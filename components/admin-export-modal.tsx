@@ -50,7 +50,7 @@ export function AdminExportModal({
             />
 
             {/* Modal */}
-            <div className="relative z-10 w-full max-w-md mx-4 bg-white dark:bg-navy-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden">
+            <div className="relative z-10 w-full max-w-md mx-4 bg-white dark:bg-navy-800 rounded-2xl shadow-2xl dark:shadow-none border border-gray-100 dark:border-white/10 overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-white/10">
                     <div className="flex items-center gap-3">

@@ -70,7 +70,7 @@ export function FilterPanel({ onFilterChange, className = '' }: FilterPanelProps
     `w-4 h-4 rounded border-gray-300 dark:border-white/20 text-accent-purple focus:ring-accent-purple dark:bg-white/5`;
 
   return (
-    <div className={`bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 p-6 sticky top-20 ${className}`}>
+    <div className={`bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none p-6 sticky top-20 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h2>

@@ -82,7 +82,7 @@ export function EnquiryPopup() {
             {/* Glow effect */}
             <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-purple to-accent-purple-dark rounded-2xl blur opacity-30 animate-pulse" />
 
-            <div className="relative bg-white dark:bg-navy-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden">
+            <div className="relative bg-white dark:bg-navy-800 rounded-2xl shadow-2xl dark:shadow-none border border-gray-200 dark:border-white/10 overflow-hidden">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-dark-blue to-navy-800 px-5 py-4 flex items-center justify-between">
                     <div>

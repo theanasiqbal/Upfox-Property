@@ -169,7 +169,7 @@ export default function AdminTestimonialsPage() {
                 </select>
             </div>
 
-            <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
+            <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-white/10 overflow-hidden">
                 {isLoading ? (
                     <div className="p-12 space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-gray-100 dark:bg-white/5 rounded-lg animate-pulse" />)}</div>
                 ) : reviews.length === 0 ? (

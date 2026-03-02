@@ -22,8 +22,7 @@ export function DashboardStatsCard({
   highlighted = false,
 }: DashboardStatsCardProps) {
   return (
-    <div className={`bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl p-4 md:p-6 border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-accent-purple/10 ${highlighted ? 'border-accent-purple/30 dark:border-accent-purple/50' : 'border-gray-100 dark:border-white/10'
-      }`}>
+    <div className={`bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl p-4 md:p-6 shadow-sm dark:shadow-none border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-lg dark:hover:shadow-accent-purple/10 ${highlighted ? 'border-accent-purple/30 dark:border-accent-purple/50' : 'border-gray-100 dark:border-white/10'}`}>
       <div className="flex items-start justify-between mb-3 md:mb-4">
         <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-accent-purple to-accent-purple-dark flex items-center justify-center">
           <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />

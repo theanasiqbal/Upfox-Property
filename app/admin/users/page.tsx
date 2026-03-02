@@ -159,11 +159,11 @@ export default function AdminUsersPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
-        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl p-5 rounded-2xl border border-gray-100 dark:border-white/10">
+        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl p-5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Users</p>
           <p className="text-3xl font-bold text-gray-900 dark:text-white">{pagination.total}</p>
         </div>
-        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl p-5 rounded-2xl border border-gray-100 dark:border-white/10">
+        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl p-5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Admin Users</p>
           <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">{adminCount}</p>
         </div>
@@ -198,7 +198,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
+      <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-white/10 overflow-hidden">
         {isLoading ? (
           <div className="p-12 space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-gray-100 dark:bg-white/5 rounded-lg animate-pulse" />)}</div>
         ) : users.length === 0 ? (

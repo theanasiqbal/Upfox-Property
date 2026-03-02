@@ -264,7 +264,7 @@ export default function PartnerPage() {
                             {benefits.map((b, idx) => {
                                 const Icon = b.icon;
                                 return (
-                                    <div key={idx} className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6 text-center hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300 group">
+                                    <div key={idx} className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6 text-center shadow-sm dark:shadow-none hover:shadow-xl dark:hover:shadow-xl dark:hover:shadow-accent-purple/10 transition-all duration-300 group">
                                         <div className="w-14 h-14 bg-accent-purple/10 dark:bg-accent-purple/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                                             <Icon className="w-7 h-7 text-accent-purple" />
                                         </div>
@@ -288,7 +288,7 @@ export default function PartnerPage() {
                                 Fill in the form below and our partnership team will get back to you within 48 hours.
                             </p>
                         </div>
-                        <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-8 border border-gray-100 dark:border-white/10">
+                        <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-8 border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
                             <PartnerForm />
                         </div>
                     </div>
@@ -305,7 +305,7 @@ export default function PartnerPage() {
                                 { emoji: '📦', label: 'Vendors & Suppliers' },
                                 { emoji: '💼', label: 'Business Partners' },
                             ].map((item) => (
-                                <div key={item.label} className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6 text-center hover:shadow-lg transition-all">
+                                <div key={item.label} className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6 text-center shadow-sm dark:shadow-none hover:shadow-lg dark:hover:shadow-lg transition-all">
                                     <div className="text-4xl mb-3">{item.emoji}</div>
                                     <p className="font-semibold text-gray-900 dark:text-white text-sm">{item.label}</p>
                                 </div>

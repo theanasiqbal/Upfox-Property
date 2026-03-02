@@ -146,7 +146,7 @@ export default function AdminDashboardPage() {
       {/* Two-column layout: Pending Props + Pending Reviews */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pending Properties */}
-        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 overflow-hidden">
+        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10">
             <h2 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-amber-500" />
@@ -192,7 +192,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Quick Links */}
-      <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 p-6">
+      <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none p-6">
         <h2 className="text-base font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[

@@ -62,7 +62,7 @@ export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModa
             />
 
             {/* Modal */}
-            <div className="relative z-10 w-full max-w-md mx-4 bg-white dark:bg-navy-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden transform transition-all">
+            <div className="relative z-10 w-full max-w-md mx-4 bg-white dark:bg-navy-800 rounded-2xl shadow-2xl dark:shadow-none border border-gray-100 dark:border-white/10 overflow-hidden transform transition-all">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-white/10">
                     <div className="flex items-center gap-3">
@@ -158,8 +158,8 @@ export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModa
                                     type="button"
                                     onClick={() => setFormData({ ...formData, role: 'user' })}
                                     className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${formData.role === 'user'
-                                            ? 'bg-accent-purple/10 border-accent-purple text-accent-purple dark:text-accent-purple-light'
-                                            : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-accent-purple/50'
+                                        ? 'bg-accent-purple/10 border-accent-purple text-accent-purple dark:text-accent-purple-light'
+                                        : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-accent-purple/50'
                                         }`}
                                 >
                                     Regular User
@@ -168,8 +168,8 @@ export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModa
                                     type="button"
                                     onClick={() => setFormData({ ...formData, role: 'admin' })}
                                     className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${formData.role === 'admin'
-                                            ? 'bg-amber-100 border-amber-400 text-amber-800 dark:bg-amber-500/20 dark:border-amber-500/50 dark:text-amber-400'
-                                            : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-amber-500/50'
+                                        ? 'bg-amber-100 border-amber-400 text-amber-800 dark:bg-amber-500/20 dark:border-amber-500/50 dark:text-amber-400'
+                                        : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-amber-500/50'
                                         }`}
                                 >
                                     Administrator
