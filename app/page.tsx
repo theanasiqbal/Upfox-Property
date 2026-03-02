@@ -27,7 +27,6 @@ export default function HomePage() {
   const [propertyType, setPropertyType] = useState('');
   const [listingType, setListingType] = useState('');
   const [priceRange, setPriceRange] = useState(100000000);
-  const [availability, setAvailability] = useState('');
 
   const formatPrice = (val: number) => {
     if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)} Cr`;
@@ -42,7 +41,6 @@ export default function HomePage() {
     if (propertyType) params.set('propertyType', propertyType);
     if (listingType) params.set('type', listingType);
     if (priceRange < 100000000) params.set('maxPrice', String(priceRange));
-    if (availability) params.set('availability', availability);
     const query = params.toString();
     router.push(`/properties${query ? `?${query}` : ''}`);
   };
@@ -201,23 +199,19 @@ export default function HomePage() {
 
           {/* Interactive Search Bar */}
           <div className="bg-white/90 dark:bg-white/5 dark:backdrop-blur-2xl backdrop-blur-sm rounded-2xl shadow-xl dark:shadow-none p-6 md:p-8 max-w-5xl mx-auto border border-gray-100 dark:border-white/15">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
               {/* Location */}
               <div>
                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Location</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400 dark:text-gray-500" />
-                  <select
+                  <input
+                    type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 text-gray-900 dark:text-white transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="" className="dark:bg-navy-700">All Locations</option>
-                    {CITIES.map((city) => (
-                      <option key={city} value={city} className="dark:bg-navy-700">{city}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
+                    placeholder="Enter location"
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 text-gray-900 dark:text-white transition-all"
+                  />
                 </div>
               </div>
 
@@ -280,24 +274,6 @@ export default function HomePage() {
                     <span className="text-xs text-gray-400 dark:text-gray-500">₹500</span>
                     <span className="text-xs text-gray-400 dark:text-gray-500">₹10Cr+</span>
                   </div>
-                </div>
-              </div>
-
-              {/* Availability */}
-              <div>
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Availability</label>
-                <div className="relative">
-                  <CheckCircle className="absolute left-3 top-3 w-4 h-4 text-gray-400 dark:text-gray-500" />
-                  <select
-                    value={availability}
-                    onChange={(e) => setAvailability(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 text-gray-900 dark:text-white transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="" className="dark:bg-navy-700">All</option>
-                    <option value="available" className="dark:bg-navy-700">Available Now</option>
-                    <option value="coming-soon" className="dark:bg-navy-700">Coming Soon</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
                 </div>
               </div>
             </div>
