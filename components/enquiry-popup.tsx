@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Send, User, Phone, MessageSquare, ChevronDown } from 'lucide-react';
+import { X, Send, User, Phone, MessageSquare, ChevronDown, Mail } from 'lucide-react';
 
 const INTEREST_OPTIONS = [
     'Buy a Property',
@@ -20,6 +20,7 @@ export function EnquiryPopup() {
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
+        email: '',
         interest: '',
         message: '',
     });
@@ -42,19 +43,36 @@ export function EnquiryPopup() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.name || !formData.phone || !formData.interest) return;
+        if (!formData.name || !formData.phone || !formData.email || !formData.interest) return;
 
         setIsSubmitting(true);
-        // Mock API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log('Enquiry submitted:', formData);
-        setIsSubmitting(false);
-        setIsSubmitted(true);
+        try {
+            const payload = {
+                name: formData.name,
+                phone: formData.phone,
+                email: formData.email,
+                message: formData.message || `I am interested in: ${formData.interest}`,
+                propertyInterest: formData.interest,
+                inquiryType: 'Popup Enquiry'
+            };
 
-        // Auto-dismiss after success
-        setTimeout(() => {
-            handleDismiss();
-        }, 3000);
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) throw new Error('Submission failed');
+
+            setIsSubmitted(true);
+            setTimeout(() => {
+                handleDismiss();
+            }, 3000);
+        } catch (error) {
+            console.error('Enquiry error:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (!isVisible) return null;
@@ -107,6 +125,19 @@ export function EnquiryPopup() {
                                     placeholder="Your Name *"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    required
+                                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 dark:border-white/15 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-purple/50 focus:border-accent-purple transition-all"
+                                />
+                            </div>
+
+                            {/* Email */}
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <input
+                                    type="email"
+                                    placeholder="Email Address *"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     required
                                     className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 dark:border-white/15 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-purple/50 focus:border-accent-purple transition-all"
                                 />

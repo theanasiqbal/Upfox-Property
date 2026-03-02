@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/lib/auth-context';
 import { Mail, Lock, AlertCircle, Home } from 'lucide-react';
+import Image from 'next/image';
 
 interface LoginFormData {
   email: string;
@@ -21,8 +22,12 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       setGeneralError('');
-      await login(data.email, data.password);
-      router.push('/dashboard/seller');
+      const user = await login(data.email, data.password);
+      if (user.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard/user');
+      }
     } catch (error) {
       setGeneralError(error instanceof Error ? error.message : 'Login failed. Please try again.');
     }
@@ -49,10 +54,14 @@ export default function LoginPage() {
       <div className="w-full max-w-sm relative z-10">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="w-9 h-9 bg-gradient-to-br from-accent-purple to-accent-purple-dark rounded-xl flex items-center justify-center shadow-lg shadow-accent-purple/25">
-            <Home className="w-4.5 h-4.5 text-white" />
-          </div>
-          <span className="text-2xl font-bold text-gray-900 dark:text-white">Upfoxx</span>
+          <Image
+            src="/upfoxx logo.png"
+            alt="Upfoxx Floors"
+            width={50}
+            height={50}
+            className="rounded-lg"
+          />
+          <span className="text-2xl font-bold text-gray-900 dark:text-white">Upfoxx Properties</span>
         </div>
 
         {/* Title */}

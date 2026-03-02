@@ -11,18 +11,33 @@ export const COLORS = {
   archived: '#6B7280', // Gray
 };
 
-// Bareilly Areas / Locations
+// Conditions
+export const CONDITIONS = [
+  { value: 'Unfurnished space', description: 'Nothing in space except flooring' },
+  { value: 'Unfurnished', description: 'Little bit completed like flooring but not builded' },
+  { value: 'Semi furnished', description: 'Ready to move without furniture' },
+  { value: 'Fully furnished', description: 'Ready move with furnisher' },
+];
+
+// India States
+export const INDIA_STATES = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+  'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+  'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+  'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+  'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
+  'Delhi', 'Lakshadweep', 'Puducherry', 'Ladakh', 'Jammu and Kashmir'
+];
+
+// Bareilly Areas / Locations (Legacy, kept for reference or other uses if needed)
 export const CITIES = [
-  'Civil Lines',
-  'Rajendra Nagar',
-  'Kotwali',
-  'Pilibhit Bypass',
-  'CB Ganj',
-  'Izatnagar',
-  'Subhash Nagar',
-  'Rampur Garden',
-  'Deen Dayal Puram',
-  'Satellite Township',
+  'Downtown',
+  'City Center',
+  'North Side',
+  'South Side',
+  'West End',
+  'East End',
 ];
 
 // Property Types
@@ -35,12 +50,14 @@ export const PROPERTY_TYPES = [
   { id: 'office', label: 'Office Space' },
   { id: 'co-working', label: 'Co-Working Space' },
   { id: 'meeting-room', label: 'Meeting Room' },
+  { id: 'pg-male', label: 'PG for Male' },
+  { id: 'pg-female', label: 'PG for Female' },
 ];
 
 // Listing Types
 export const LISTING_TYPES = [
-  { id: 'sale', label: 'For Sale' },
-  { id: 'rent', label: 'For Rent' },
+  { id: 'sale', label: 'Sale' },
+  { id: 'rent', label: 'Rent' },
 ];
 
 // Amenities
@@ -62,6 +79,8 @@ export const AMENITIES = [
   { id: 'reception', name: 'Reception' },
   { id: 'meeting-room', name: 'Meeting Room' },
   { id: 'pantry', name: 'Pantry' },
+  { id: 'toilet', name: 'Toilet' },
+  { id: 'others', name: 'Others' },
 ];
 
 // Status Badge Colors
@@ -90,7 +109,7 @@ export const SERVICES = [
     id: 'office-space',
     title: 'Office Space for Rent',
     shortDescription: 'Flexible leases in prime business areas',
-    description: 'Find the perfect office space in Bareilly\'s prime business locations. We offer fully managed spaces with flexible lease terms, modern interiors, and all necessary infrastructure for your business.',
+    description: 'Find the perfect office space in prime business locations. We offer fully managed spaces with flexible lease terms, modern interiors, and all necessary infrastructure for your business.',
     features: ['Flexible leases', 'Prime business areas', 'Fully managed spaces', 'Modern interiors', 'High-speed internet'],
   },
   {
@@ -110,22 +129,22 @@ export const SERVICES = [
   {
     id: 'residential',
     title: 'Residential Rental Properties',
-    shortDescription: 'Quality homes for families in Bareilly',
-    description: 'Browse through verified residential rental properties across Bareilly. From cozy flats to spacious houses, find the perfect home for your family.',
+    shortDescription: 'Quality homes for families',
+    description: 'Browse through verified residential rental properties. From cozy flats to spacious houses, find the perfect home for your family.',
     features: ['Verified listings', 'All budget ranges', 'Family-friendly areas', 'Furnished & unfurnished', 'Pet-friendly options'],
   },
   {
     id: 'commercial',
     title: 'Commercial Properties',
     shortDescription: 'Shops, showrooms & commercial spaces',
-    description: 'Premium commercial properties in high-traffic areas of Bareilly. Ideal for retail shops, showrooms, restaurants, and more.',
+    description: 'Premium commercial properties in high-traffic areas. Ideal for retail shops, showrooms, restaurants, and more.',
     features: ['High footfall areas', 'Flexible sizes', 'Ready to move in', 'Parking available', 'Prime locations'],
   },
   {
     id: 'virtual-office',
     title: 'Virtual Office Services',
     shortDescription: 'Professional business address & more',
-    description: 'Get a prestigious business address in Civil Lines, Bareilly without the cost of a physical office. Perfect for GST registration and professional presence.',
+    description: 'Get a prestigious business address without the cost of a physical office. Perfect for GST registration and professional presence.',
     features: ['Business address', 'GST registration address', 'Mail handling', 'Professional presence', 'Phone answering service'],
   },
   {

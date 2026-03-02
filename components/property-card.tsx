@@ -30,7 +30,7 @@ export function PropertyCard({ property, showSaveButton = true }: PropertyCardPr
           {/* Badges */}
           <div className="absolute top-3 left-3 flex gap-2">
             <span className="px-3 py-1 text-xs font-semibold text-white bg-accent-purple/90 backdrop-blur-sm rounded-full capitalize">
-              {property.listingType === 'rent' ? 'For Rent' : 'For Sale'}
+              {property.listingType === 'rent' ? 'For Rent' : property.listingType === 'sale' ? 'For Sale' : 'Buy'}
             </span>
             <span className="px-3 py-1 text-xs font-semibold text-white bg-black/40 backdrop-blur-sm rounded-full capitalize">
               {property.propertyType.replace('-', ' ')}
@@ -62,16 +62,12 @@ export function PropertyCard({ property, showSaveButton = true }: PropertyCardPr
           </div>
 
           {/* Specs */}
-          <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-100 dark:border-white/10">
-            <div className="flex items-center gap-1.5">
-              <Bed className="w-4 h-4" />
-              <span>{property.bedrooms} Bed</span>
+          <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-100 dark:border-white/10">
+            <div className="flex items-center gap-1.5 focus:text-accent-purple truncate">
+              {property.bdaApproved && <span className="w-2 h-2 rounded-full bg-green-500"></span>}
+              <span className="truncate">{property.condition}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Bath className="w-4 h-4" />
-              <span>{property.bathrooms} Bath</span>
-            </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               <Maximize className="w-4 h-4" />
               <span>{property.area} sqft</span>
             </div>

@@ -15,6 +15,7 @@ import {
   Search, Home, Users, Trophy, Award, Briefcase, CheckCircle, Phone,
   ArrowRight, Building2, Handshake, ShieldCheck, ChevronDown, MapPin,
   Star, Quote, MessageCircle, Laptop, DoorOpen, HomeIcon, Store, Globe, Settings,
+  Calendar, Tag, Users2,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -26,6 +27,7 @@ export default function HomePage() {
   const [propertyType, setPropertyType] = useState('');
   const [listingType, setListingType] = useState('');
   const [priceRange, setPriceRange] = useState(100000000);
+  const [availability, setAvailability] = useState('');
 
   const formatPrice = (val: number) => {
     if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)} Cr`;
@@ -40,18 +42,19 @@ export default function HomePage() {
     if (propertyType) params.set('propertyType', propertyType);
     if (listingType) params.set('type', listingType);
     if (priceRange < 100000000) params.set('maxPrice', String(priceRange));
+    if (availability) params.set('availability', availability);
     const query = params.toString();
     router.push(`/properties${query ? `?${query}` : ''}`);
   };
 
   const services = [
-    { icon: Building2, title: 'Office Space for Rent', description: 'Flexible leases in prime business areas', href: '/services' },
-    { icon: Laptop, title: 'Co-Working Spaces', description: 'Starting from ₹999/month', href: '/services' },
-    { icon: DoorOpen, title: 'Meeting Rooms', description: 'Hourly bookings with full AV setup', href: '/services' },
-    { icon: HomeIcon, title: 'Residential Rentals', description: 'Quality homes for families', href: '/services' },
-    { icon: Store, title: 'Commercial Properties', description: 'Shops, showrooms & spaces', href: '/services' },
-    { icon: Globe, title: 'Virtual Office', description: 'Business address & GST registration', href: '/services' },
-    { icon: Settings, title: 'Property Management', description: 'Complete property care', href: '/services' },
+    { icon: Building2, title: 'Office Space', description: 'Flexible office spaces tailored for your business needs.', href: '/services' },
+    { icon: Laptop, title: 'Co-Working Space', description: 'Shared workspaces with amenities — ideal for freelancers & teams.', href: '/services' },
+    { icon: DoorOpen, title: 'Meeting Rooms', description: 'Book meeting spaces with projector, seating & refreshments.', href: '/services' },
+    { icon: HomeIcon, title: 'Residential Rentals', description: 'Quality verified homes for families.', href: '/services' },
+    { icon: Store, title: 'Commercial Properties', description: 'Shops, showrooms & high-footfall commercial spaces.', href: '/services' },
+    { icon: Globe, title: 'Virtual Office', description: 'Business address & GST registration — no physical cost.', href: '/services' },
+    { icon: Settings, title: 'Property Management', description: 'End-to-end property handling: maintenance, tenants, rent collection.', href: '/services' },
   ];
 
   const testimonials = [
@@ -78,15 +81,40 @@ export default function HomePage() {
   const [allTestimonials, setAllTestimonials] = useState(testimonials);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('upfoxx_user_reviews');
-      if (stored) {
-        const userReviews = JSON.parse(stored);
-        if (Array.isArray(userReviews) && userReviews.length > 0) {
-          setAllTestimonials([...testimonials, ...userReviews]);
+    const fetchFeaturedTestimonials = async () => {
+      try {
+        const res = await fetch('/api/reviews/featured');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.reviews && data.reviews.length > 0) {
+            // Map IReview fields to match the UI expectation
+            const featured = data.reviews.map((r: any) => ({
+              name: r.name,
+              role: r.role || 'Customer',
+              text: r.message,
+              rating: r.rating
+            }));
+            setAllTestimonials(featured);
+            return;
+          }
         }
+      } catch (err) {
+        console.error('Failed to load dynamic testimonials', err);
       }
-    } catch { }
+
+      // Fallback to local storage or defaults if API fails or returns none
+      try {
+        const stored = localStorage.getItem('upfoxx_user_reviews');
+        if (stored) {
+          const userReviews = JSON.parse(stored);
+          if (Array.isArray(userReviews) && userReviews.length > 0) {
+            setAllTestimonials([...testimonials, ...userReviews]);
+          }
+        }
+      } catch { }
+    };
+
+    fetchFeaturedTestimonials();
   }, []);
 
   return (
@@ -103,7 +131,7 @@ export default function HomePage() {
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&h=1080&fit=crop"
-            alt="Premium workspace in Bareilly"
+            alt="Premium workspace"
             className="w-full h-full object-cover"
           />
           {/* Light mode overlay */}
@@ -136,35 +164,34 @@ export default function HomePage() {
 
         <div className="max-w-7xl mx-auto relative z-10 w-full">
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight tracking-tight font-heading">
-              Find the Perfect{' '}
-              <span className="gradient-text">Property</span>
-              <br />
-              & <span className="gradient-text">Workspace</span> in Bareilly
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight tracking-tight font-heading">
+              Upfoxx Floors – Commercial Real Estate |{' '}
+              <span className="gradient-text">Managed Workspaces</span>
+              {' '}| Property Management
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed">
-              Premium office spaces, co-working hubs, rental homes & commercial properties in Civil Lines & prime Bareilly locations.
+              Office space, co-working, meeting rooms, property management &amp; partnership opportunities.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
               <Link
-                href="/properties"
-                className="px-8 py-3.5 btn-gradient font-semibold rounded-full text-lg flex items-center gap-2"
+                href="/contact?type=tour"
+                className="px-8 py-3.5 btn-gradient font-semibold rounded-full text-lg flex items-center gap-2 hover:scale-105 transition-all duration-300"
               >
-                View Properties
-                <ArrowRight className="w-5 h-5" />
+                <Calendar className="w-5 h-5" />
+                Book a Tour
+              </Link>
+              <Link
+                href="/partner"
+                className="px-8 py-3.5 bg-dark-blue hover:bg-dark-blue-dark text-white font-semibold rounded-full text-lg flex items-center gap-2 hover:scale-105 transition-all duration-300"
+              >
+                <Users2 className="w-5 h-5" />
+                Partner With Us
               </Link>
               <a
-                href={`tel:${CONTACT.phone}`}
-                className="px-8 py-3.5 bg-dark-blue hover:bg-dark-blue-dark text-white font-semibold rounded-full text-lg flex items-center gap-2 transition-all"
-              >
-                <Phone className="w-5 h-5" />
-                Call Now
-              </a>
-              <a
-                href={`${CONTACT.whatsappUrl}?text=${encodeURIComponent('Hi, I am looking for a property in Bareilly.')}`}
+                href={`${CONTACT.whatsappUrl}?text=${encodeURIComponent('Hi, I am looking for a property.')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-3.5 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full text-lg flex items-center gap-2 transition-all"
+                className="px-8 py-3.5 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full text-lg flex items-center gap-2 hover:scale-105 transition-all duration-300"
               >
                 <MessageCircle className="w-5 h-5" />
                 WhatsApp Now
@@ -174,7 +201,7 @@ export default function HomePage() {
 
           {/* Interactive Search Bar */}
           <div className="bg-white/90 dark:bg-white/5 dark:backdrop-blur-2xl backdrop-blur-sm rounded-2xl shadow-xl dark:shadow-none p-6 md:p-8 max-w-5xl mx-auto border border-gray-100 dark:border-white/15">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-5">
               {/* Location */}
               <div>
                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Location</label>
@@ -185,7 +212,7 @@ export default function HomePage() {
                     onChange={(e) => setLocation(e.target.value)}
                     className="w-full pl-10 pr-10 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 text-gray-900 dark:text-white transition-all appearance-none cursor-pointer"
                   >
-                    <option value="" className="dark:bg-navy-700">All Bareilly</option>
+                    <option value="" className="dark:bg-navy-700">All Locations</option>
                     {CITIES.map((city) => (
                       <option key={city} value={city} className="dark:bg-navy-700">{city}</option>
                     ))}
@@ -225,7 +252,7 @@ export default function HomePage() {
                   >
                     <option value="" className="dark:bg-navy-700">All</option>
                     <option value="rent" className="dark:bg-navy-700">For Rent</option>
-                    <option value="sale" className="dark:bg-navy-700">For Sale</option>
+                    <option value="buy" className="dark:bg-navy-700">Buy</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
                 </div>
@@ -253,6 +280,24 @@ export default function HomePage() {
                     <span className="text-xs text-gray-400 dark:text-gray-500">₹500</span>
                     <span className="text-xs text-gray-400 dark:text-gray-500">₹10Cr+</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Availability */}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Availability</label>
+                <div className="relative">
+                  <CheckCircle className="absolute left-3 top-3 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                  <select
+                    value={availability}
+                    onChange={(e) => setAvailability(e.target.value)}
+                    className="w-full pl-10 pr-10 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 text-gray-900 dark:text-white transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="" className="dark:bg-navy-700">All</option>
+                    <option value="available" className="dark:bg-navy-700">Available Now</option>
+                    <option value="coming-soon" className="dark:bg-navy-700">Coming Soon</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -317,7 +362,7 @@ export default function HomePage() {
               Featured <span className="gradient-text">Properties</span>
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Handpicked premium listings in Bareilly
+              Handpicked premium listings
             </p>
           </div>
 
@@ -351,13 +396,13 @@ export default function HomePage() {
               Why Choose <span className="gradient-text">Upfoxx Floors</span>
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Trusted real estate solutions in Bareilly
+              Trusted real estate solutions
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: MapPin, title: 'Prime Civil Lines Locations', description: 'Properties in the most sought-after locations of Bareilly including Civil Lines and prime residential areas.' },
+              { icon: MapPin, title: 'Prime Locations', description: 'Properties in the most sought-after locations and prime residential areas.' },
               { icon: ShieldCheck, title: 'Verified Listings', description: 'Every property is personally verified by our team before listing. No fake listings, guaranteed.' },
               { icon: CheckCircle, title: 'Transparent Pricing', description: 'Clear, upfront pricing with no hidden charges. What you see is what you pay.' },
               { icon: Award, title: 'Admin Approved Properties', description: 'All properties go through a strict admin approval process ensuring quality and authenticity.' },
@@ -377,6 +422,58 @@ export default function HomePage() {
       </section>
 
       {/* ============================================
+          PARTNER WITH US TEASER
+          ============================================ */}
+      <section className="py-20 bg-white dark:bg-navy-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl overflow-hidden relative bg-gradient-to-br from-dark-blue via-dark-blue-dark to-navy-900 p-12 md:p-16">
+            <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.4%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')]" />
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+              <div>
+                <p className="text-gold font-semibold text-sm uppercase tracking-widest mb-3">Collaborate With Us</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-heading leading-tight">
+                  Partner With Upfoxx Floors
+                </h2>
+                <p className="text-white/70 text-lg leading-relaxed mb-6">
+                  Are you a real estate agent, property broker, or business partner? We offer competitive commissions and long-term partnerships.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    href="/partner"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-gold hover:bg-gold-dark text-white font-bold rounded-full hover:scale-105 transition-all duration-300"
+                  >
+                    <Users2 className="w-5 h-5" />
+                    Submit Partnership Query
+                  </Link>
+                  <a
+                    href={`${CONTACT.whatsappUrl}?text=${encodeURIComponent('Hi, I am interested in partnering with Upfoxx Floors.')}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-full hover:scale-105 transition-all duration-300"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    WhatsApp Us
+                  </a>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { label: 'Real Estate Agents', icon: '🏡' },
+                  { label: 'Property Brokers', icon: '🤝' },
+                  { label: 'Vendors & Suppliers', icon: '📦' },
+                  { label: 'Business Partners', icon: '💼' },
+                ].map((item) => (
+                  <div key={item.label} className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/10">
+                    <div className="text-3xl mb-2">{item.icon}</div>
+                    <p className="text-white font-semibold text-sm">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
           TESTIMONIALS
           ============================================ */}
       <section className="py-20 bg-white dark:bg-navy-700">
@@ -386,7 +483,7 @@ export default function HomePage() {
               What Our <span className="gradient-text">Clients Say</span>
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Real stories from real people in Bareilly
+              Real stories from real people
             </p>
           </div>
 
@@ -411,6 +508,62 @@ export default function HomePage() {
       </section>
 
       {/* ============================================
+          CTA STRIP SECTION
+          ============================================ */}
+      <section className="py-16 bg-gray-50 dark:bg-navy-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 font-heading">
+              How Can We <span className="gradient-text">Help You?</span>
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">Take the next step — we&apos;re just a click away</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link
+              href="/contact?type=tour"
+              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-14 h-14 btn-gradient rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Calendar className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white font-heading">Book a Tour</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Schedule a site visit at your convenience</p>
+            </Link>
+            <Link
+              href="/contact?type=quote"
+              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-14 h-14 bg-dark-blue rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Tag className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white font-heading">Get a Quote</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Receive a custom pricing proposal instantly</p>
+            </Link>
+            <Link
+              href="/partner"
+              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-14 h-14 bg-gold rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Users2 className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white font-heading">Join as Partner</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Agents, brokers & vendors — collaborate with us</p>
+            </Link>
+            <a
+              href={`tel:${CONTACT.phone}`}
+              className="group flex flex-col items-center gap-3 p-6 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl hover:shadow-xl dark:hover:shadow-accent-purple/10 hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Phone className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white font-heading">Schedule a Call</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Talk to our team at a time that suits you</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
           STRONG CTA SECTION
           ============================================ */}
       <section className="py-24 relative overflow-hidden">
@@ -420,7 +573,7 @@ export default function HomePage() {
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight font-heading">
-            Looking for Property in <span className="text-gold">Bareilly</span>?
+            Looking for a <span className="text-gold">Property</span>?
           </h2>
           <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
             Get in touch with our expert team or list your property for thousands of potential buyers and tenants
@@ -434,7 +587,7 @@ export default function HomePage() {
               Call Now: {CONTACT.phone}
             </a>
             <a
-              href={`${CONTACT.whatsappUrl}?text=${encodeURIComponent('Hi, I am looking for a property in Bareilly.')}`}
+              href={`${CONTACT.whatsappUrl}?text=${encodeURIComponent('Hi, I am looking for a property.')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full hover:scale-105 transition-all duration-300 text-lg shadow-xl"

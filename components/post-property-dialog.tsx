@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
 import { MultiStepForm } from '@/components/multi-step-form';
 import { ImageUpload } from '@/components/image-upload';
-import { PROPERTY_TYPES, LISTING_TYPES, AMENITIES, CITIES } from '@/lib/constants';
+import { PROPERTY_TYPES, LISTING_TYPES, AMENITIES, CITIES, CONDITIONS, INDIA_STATES } from '@/lib/constants';
 import {
     Dialog,
     DialogContent,
@@ -19,8 +21,8 @@ interface PropertyFormData {
     description: string;
     propertyType: string;
     listingType: string;
-    bedrooms: number;
-    bathrooms: number;
+    condition: string;
+    bdaApproved: boolean;
     area: number;
     price: number;
     selectedAmenities: string[];
@@ -41,17 +43,23 @@ const steps = [
 
 interface PostPropertyDialogProps {
     trigger?: React.ReactNode;
+    onSuccess?: () => void;
 }
 
-export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
+export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogProps) {
     const [open, setOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<PropertyFormData>({
+    const [submitError, setSubmitError] = useState('');
+    const { isAuthenticated, currentUser } = useAuth();
+    const router = useRouter();
+
+    const { register, handleSubmit, watch, setValue, reset, trigger: validateFormStep, formState: { errors } } = useForm<PropertyFormData>({
+        mode: 'onChange',
         defaultValues: {
-            bedrooms: 1,
-            bathrooms: 1,
+            condition: '',
+            bdaApproved: false,
             area: 1000,
             price: 200000,
             selectedAmenities: [],
@@ -59,14 +67,62 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
         },
     });
 
+    const STEP_FIELDS = [
+        ['title', 'description', 'propertyType', 'listingType'],
+        ['condition', 'area', 'price'],
+        ['address', 'city', 'state', 'zipcode'],
+        ['images']
+    ] as const;
+
+    const handleNext = async () => {
+        if (currentStep < STEP_FIELDS.length) {
+            const fieldsToValidate = STEP_FIELDS[currentStep];
+            const isStepValid = await validateFormStep(fieldsToValidate as any);
+            if (isStepValid) {
+                setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
+            }
+        } else {
+            setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
+        }
+    };
+
     const formData = watch();
 
     const handleFormSubmit = async () => {
         setIsSubmitting(true);
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        console.log('Property submitted from modal:', formData);
-        setIsSubmitting(false);
-        setSubmitted(true);
+        setSubmitError('');
+        try {
+            const payload = {
+                title: formData.title,
+                description: formData.description,
+                propertyType: formData.propertyType,
+                listingType: formData.listingType,
+                condition: formData.condition,
+                bdaApproved: formData.bdaApproved,
+                area: formData.area,
+                price: formData.price,
+                amenities: formData.selectedAmenities,
+                location: formData.address,
+                city: formData.city,
+                state: formData.state,
+                zipcode: formData.zipcode,
+                images: formData.images as string[], // Cloudinary URLs from ImageUpload
+            };
+            const res = await fetch('/api/properties', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to submit property');
+            setSubmitted(true);
+            onSuccess?.();
+        } catch (e: any) {
+            setSubmitError(e.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const toggleAmenity = (amenityId: string) => {
@@ -89,15 +145,25 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
         }
     };
 
+    const handleTriggerClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isAuthenticated) {
+            router.push('/auth/signup');
+        } else {
+            setOpen(true);
+        }
+    };
+
     return (
         <>
             {trigger ? (
-                <div onClick={() => setOpen(true)} className="cursor-pointer">
+                <div onClick={handleTriggerClick} className="cursor-pointer">
                     {trigger}
                 </div>
             ) : (
                 <button
-                    onClick={() => setOpen(true)}
+                    onClick={handleTriggerClick}
                     className="px-6 py-2.5 btn-gradient text-sm font-bold rounded-full flex items-center gap-2"
                 >
                     <Plus className="w-4 h-4" />
@@ -129,13 +195,15 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                     Property Submitted Successfully!
                                 </h3>
                                 <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                    Your property has been submitted for review. Our admin team will verify and approve it within 24 hours.
+                                    {currentUser?.role === 'admin'
+                                        ? "Your property has been instantly approved and is now live on the platform!"
+                                        : "Your property has been submitted for review. Our admin team will verify and approve it within 24 hours."}
                                 </p>
                                 <button
                                     onClick={() => handleOpenChange(false)}
                                     className="px-8 py-3 btn-gradient font-semibold rounded-xl"
                                 >
-                                    Close
+                                    {currentUser?.role === 'admin' ? "View Properties" : "Close"}
                                 </button>
                             </div>
                         ) : (
@@ -143,7 +211,7 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                             <MultiStepForm
                                 steps={steps.map(s => s.label)}
                                 currentStep={currentStep}
-                                onNext={() => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))}
+                                onNext={handleNext}
                                 onPrevious={() => setCurrentStep(prev => Math.max(prev - 1, 0))}
                                 onSubmit={handleSubmit(handleFormSubmit)}
                                 isSubmitting={isSubmitting}
@@ -153,7 +221,7 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                     <div className="space-y-5">
                                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Basic Information</h2>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Property Title</label>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Property Title <span className="text-red-500">*</span></label>
                                             <input
                                                 type="text"
                                                 {...register('title', { required: 'Title is required' })}
@@ -163,9 +231,11 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                             {errors.title && <p className="text-red-600 text-sm mt-1">{errors.title.message}</p>}
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description <span className="text-red-500">*</span></label>
                                             <textarea
-                                                {...register('description', { required: 'Description is required' })}
+                                                {...register('description', {
+                                                    required: 'Description is required'
+                                                })}
                                                 rows={3}
                                                 className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple resize-none ${errors.description ? 'border-red-500' : 'border-gray-300 dark:border-white/20'}`}
                                                 placeholder="Describe your property..."
@@ -174,7 +244,7 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Property Type</label>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Property Type <span className="text-red-500">*</span></label>
                                                 <select
                                                     {...register('propertyType', { required: 'Property type is required' })}
                                                     className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple ${errors.propertyType ? 'border-red-500' : 'border-gray-300 dark:border-white/20'}`}
@@ -187,7 +257,7 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                                 {errors.propertyType && <p className="text-red-600 text-sm mt-1">{errors.propertyType.message}</p>}
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Listing Type</label>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Listing Type <span className="text-red-500">*</span></label>
                                                 <select
                                                     {...register('listingType', { required: 'Listing type is required' })}
                                                     className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple ${errors.listingType ? 'border-red-500' : 'border-gray-300 dark:border-white/20'}`}
@@ -200,6 +270,16 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                                 {errors.listingType && <p className="text-red-600 text-sm mt-1">{errors.listingType.message}</p>}
                                             </div>
                                         </div>
+                                        <div>
+                                            <label className="flex items-center gap-3 cursor-pointer p-3 border border-gray-300 dark:border-white/20 rounded-lg bg-gray-50 dark:bg-white/5">
+                                                <input
+                                                    type="checkbox"
+                                                    {...register('bdaApproved')}
+                                                    className="w-5 h-5 rounded border-gray-300 text-accent-purple focus:ring-accent-purple"
+                                                />
+                                                <span className="text-sm font-medium text-gray-900 dark:text-white">BDA Approved Property</span>
+                                            </label>
+                                        </div>
                                     </div>
                                 )}
 
@@ -207,22 +287,34 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                 {currentStep === 1 && (
                                     <div className="space-y-5">
                                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Property Details</h2>
-                                        <div className="grid grid-cols-3 gap-4">
+                                        <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Bedrooms</label>
-                                                <input type="number" min="1" {...register('bedrooms', { required: true, min: 1 })} className="w-full px-4 py-2.5 border border-gray-300 dark:border-white/20 rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple" />
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Condition <span className="text-red-500">*</span></label>
+                                                <select
+                                                    {...register('condition', { required: 'Condition is required' })}
+                                                    className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple ${errors.condition ? 'border-red-500' : 'border-gray-300 dark:border-white/20'}`}
+                                                >
+                                                    <option value="">Select condition...</option>
+                                                    {CONDITIONS.map((cond) => (
+                                                        <option key={cond.value} value={cond.value}>{cond.value}</option>
+                                                    ))}
+                                                </select>
+                                                {errors.condition && <p className="text-red-600 text-sm mt-1">{errors.condition.message}</p>}
+                                                {formData.condition && !errors.condition && (
+                                                    <p className="text-xs text-gray-500 mt-1 dark:text-gray-400">
+                                                        {CONDITIONS.find(c => c.value === formData.condition)?.description}
+                                                    </p>
+                                                )}
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Bathrooms</label>
-                                                <input type="number" min="1" {...register('bathrooms', { required: true, min: 1 })} className="w-full px-4 py-2.5 border border-gray-300 dark:border-white/20 rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Area (sqft)</label>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Area (sqft) <span className="text-red-500">*</span></label>
                                                 <input type="number" min="100" {...register('area', { required: true, min: 100 })} className="w-full px-4 py-2.5 border border-gray-300 dark:border-white/20 rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple" />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Price (₹)</label>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                                {formData.listingType === 'rent' ? 'Rent per month (₹)' : 'Price (₹)'} <span className="text-red-500">*</span>
+                                            </label>
                                             <input type="number" min="0" {...register('price', { required: true, min: 0 })} className="w-full px-4 py-2.5 border border-gray-300 dark:border-white/20 rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple" />
                                         </div>
                                         <div>
@@ -249,7 +341,7 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                     <div className="space-y-5">
                                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Location</h2>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Address</label>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Address <span className="text-red-500">*</span></label>
                                             <input
                                                 type="text"
                                                 {...register('address', { required: 'Address is required' })}
@@ -259,31 +351,31 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                             {errors.address && <p className="text-red-600 text-sm mt-1">{errors.address.message}</p>}
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">City</label>
-                                            <select
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">City <span className="text-red-500">*</span></label>
+                                            <input
+                                                type="text"
                                                 {...register('city', { required: 'City is required' })}
                                                 className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple ${errors.city ? 'border-red-500' : 'border-gray-300 dark:border-white/20'}`}
-                                            >
-                                                <option value="">Select a city...</option>
-                                                {CITIES.map((city) => (
-                                                    <option key={city} value={city}>{city}</option>
-                                                ))}
-                                            </select>
+                                                placeholder="e.g. Bareilly"
+                                            />
                                             {errors.city && <p className="text-red-600 text-sm mt-1">{errors.city.message}</p>}
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">State</label>
-                                                <input
-                                                    type="text"
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">State <span className="text-red-500">*</span></label>
+                                                <select
                                                     {...register('state', { required: 'State is required' })}
                                                     className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple ${errors.state ? 'border-red-500' : 'border-gray-300 dark:border-white/20'}`}
-                                                    placeholder="Uttar Pradesh"
-                                                />
+                                                >
+                                                    <option value="">Select state...</option>
+                                                    {INDIA_STATES.map((state) => (
+                                                        <option key={state} value={state}>{state}</option>
+                                                    ))}
+                                                </select>
                                                 {errors.state && <p className="text-red-600 text-sm mt-1">{errors.state.message}</p>}
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Zipcode</label>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Zipcode <span className="text-red-500">*</span></label>
                                                 <input
                                                     type="text"
                                                     {...register('zipcode', { required: 'Zipcode is required' })}
@@ -299,13 +391,15 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                 {/* Step 4: Images */}
                                 {currentStep === 3 && (
                                     <div className="space-y-5">
-                                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Upload Images</h2>
+                                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Upload Images <span className="text-red-500">*</span></h2>
                                         <p className="text-gray-600 dark:text-gray-400 text-sm">Add up to 10 images of your property (JPG, PNG)</p>
                                         <ImageUpload
-                                            onImagesChange={(images) => setValue('images', images)}
+                                            onImagesChange={(images) => setValue('images', images, { shouldValidate: true })}
                                             maxImages={10}
                                             existingImages={formData.images}
                                         />
+                                        <input type="hidden" {...register('images', { validate: val => val && val.length > 0 || 'At least one image is required' })} />
+                                        {errors.images && <p className="text-red-600 text-sm mt-1">{errors.images.message}</p>}
                                     </div>
                                 )}
 
@@ -323,11 +417,16 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                                 <p className="font-semibold text-gray-900 dark:text-white capitalize text-sm">{formData.propertyType || '—'}</p>
                                             </div>
                                             <div>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">Bedrooms / Bathrooms</p>
-                                                <p className="font-semibold text-gray-900 dark:text-white text-sm">{formData.bedrooms} / {formData.bathrooms}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">Condition</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                                                    {formData.condition || '—'}
+                                                    {formData.bdaApproved && <span className="ml-2 inline-block px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">BDA Approved</span>}
+                                                </p>
                                             </div>
                                             <div>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">Price</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                    {formData.listingType === 'rent' ? 'Rent/mo' : 'Price'}
+                                                </p>
                                                 <p className="font-semibold text-gray-900 dark:text-white text-sm">₹{formData.price?.toLocaleString('en-IN')}</p>
                                             </div>
                                             <div>
@@ -339,11 +438,18 @@ export function PostPropertyDialog({ trigger }: PostPropertyDialogProps) {
                                                 <p className="font-semibold text-gray-900 dark:text-white text-sm">{formData.city || '—'}, {formData.state || '—'}</p>
                                             </div>
                                         </div>
-                                        <div className="p-3 bg-blue-50 dark:bg-blue-500/10 border border-blue-300 dark:border-blue-500/20 rounded-lg">
-                                            <p className="text-sm text-blue-900 dark:text-blue-200">
-                                                Your property will be submitted for approval. An admin will review it within 24 hours.
+                                        <div className={`p-3 border rounded-lg ${currentUser?.role === 'admin' ? 'bg-green-50 dark:bg-green-500/10 border-green-300 dark:border-green-500/20' : 'bg-blue-50 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/20'}`}>
+                                            <p className={`text-sm ${currentUser?.role === 'admin' ? 'text-green-900 dark:text-green-200' : 'text-blue-900 dark:text-blue-200'}`}>
+                                                {currentUser?.role === 'admin'
+                                                    ? "As an admin, your property will be instantly approved and immediately visible to the public."
+                                                    : "Your property will be submitted for approval. An admin will review it within 24 hours."}
                                             </p>
                                         </div>
+                                        {submitError && (
+                                            <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-300 dark:border-red-500/20 rounded-lg">
+                                                <p className="text-sm text-red-700 dark:text-red-300">{submitError}</p>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </MultiStepForm>

@@ -1,16 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { MOCK_PROPERTIES } from '@/lib/data';
 import { Search, X } from 'lucide-react';
+import { CONDITIONS, PROPERTY_TYPES } from '@/lib/constants';
 
 export interface FilterState {
   cities: string[];
   propertyTypes: string[];
   listingTypes: string[];
   priceRange: { min: number; max: number } | null;
-  bedrooms: number[];
-  bathrooms: number[];
+  conditions: string[];
   amenities: string[];
 }
 
@@ -25,8 +24,7 @@ export function FilterPanel({ onFilterChange, className = '' }: FilterPanelProps
     propertyTypes: [],
     listingTypes: [],
     priceRange: null,
-    bedrooms: [],
-    bathrooms: [],
+    conditions: [],
     amenities: [],
   });
 
@@ -35,9 +33,8 @@ export function FilterPanel({ onFilterChange, className = '' }: FilterPanelProps
   const [maxPrice, setMaxPrice] = useState('');
 
   // Get unique values from data
-  const cities = [...new Set(MOCK_PROPERTIES.map((p) => p.location))];
-  const propertyTypes = [...new Set(MOCK_PROPERTIES.map((p) => p.propertyType))];
-  const listingTypes = [...new Set(MOCK_PROPERTIES.map((p) => p.listingType))];
+  const cities: string[] = [];
+  const listingTypes: string[] = ['buy', 'rent'];
 
   const updateAndNotify = (newFilters: FilterState) => {
     setFilters(newFilters);
@@ -54,8 +51,7 @@ export function FilterPanel({ onFilterChange, className = '' }: FilterPanelProps
       propertyTypes: [],
       listingTypes: [],
       priceRange: null,
-      bedrooms: [],
-      bathrooms: [],
+      conditions: [],
       amenities: [],
     };
     setSearchTerm('');
@@ -127,17 +123,17 @@ export function FilterPanel({ onFilterChange, className = '' }: FilterPanelProps
       <div className="mb-6">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Property Type</h3>
         <div className="space-y-2.5">
-          {propertyTypes.map((type) => (
-            <label key={type} className="flex items-center gap-3 cursor-pointer group">
+          {PROPERTY_TYPES.map((type) => (
+            <label key={type.id} className="flex items-center gap-3 cursor-pointer group">
               <input
                 type="checkbox"
-                checked={filters.propertyTypes.includes(type)}
+                checked={filters.propertyTypes.includes(type.id)}
                 onChange={() =>
-                  updateAndNotify({ ...filters, propertyTypes: toggleArrayValue(filters.propertyTypes, type) })
+                  updateAndNotify({ ...filters, propertyTypes: toggleArrayValue(filters.propertyTypes, type.id) })
                 }
-                className={checkboxClass(filters.propertyTypes.includes(type))}
+                className={checkboxClass(filters.propertyTypes.includes(type.id))}
               />
-              <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white capitalize transition-colors">{type}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{type.label}</span>
             </label>
           ))}
         </div>
@@ -172,72 +168,22 @@ export function FilterPanel({ onFilterChange, className = '' }: FilterPanelProps
         </button>
       </div>
 
-      <hr className="border-gray-100 dark:border-white/10 mb-6" />
-
-      {/* Location */}
+      {/* Conditions */}
       <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Location</h3>
-        <div className="space-y-2.5 max-h-40 overflow-y-auto">
-          {cities
-            .filter((city) => city.toLowerCase().includes(searchTerm.toLowerCase()))
-            .map((city) => (
-              <label key={city} className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={filters.cities.includes(city)}
-                  onChange={() =>
-                    updateAndNotify({ ...filters, cities: toggleArrayValue(filters.cities, city) })
-                  }
-                  className={checkboxClass(filters.cities.includes(city))}
-                />
-                <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{city}</span>
-              </label>
-            ))}
-        </div>
-      </div>
-
-      <hr className="border-gray-100 dark:border-white/10 mb-6" />
-
-      {/* Bedrooms */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Bedrooms</h3>
-        <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map((num) => (
-            <button
-              key={num}
-              onClick={() =>
-                updateAndNotify({ ...filters, bedrooms: toggleArrayValue(filters.bedrooms, num) })
-              }
-              className={`w-10 h-10 rounded-xl text-sm font-medium transition-all ${filters.bedrooms.includes(num)
-                ? 'bg-accent-purple text-white shadow-lg shadow-accent-purple/25'
-                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10'
-                }`}
-            >
-              {num}+
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <hr className="border-gray-100 dark:border-white/10 mb-6" />
-
-      {/* Bathrooms */}
-      <div>
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Bathrooms</h3>
-        <div className="flex gap-2">
-          {[1, 2, 3, 4].map((num) => (
-            <button
-              key={num}
-              onClick={() =>
-                updateAndNotify({ ...filters, bathrooms: toggleArrayValue(filters.bathrooms, num) })
-              }
-              className={`w-10 h-10 rounded-xl text-sm font-medium transition-all ${filters.bathrooms.includes(num)
-                ? 'bg-accent-purple text-white shadow-lg shadow-accent-purple/25'
-                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10'
-                }`}
-            >
-              {num}+
-            </button>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">Condition</h3>
+        <div className="space-y-2.5">
+          {CONDITIONS.map((cond) => (
+            <label key={cond.value} className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={filters.conditions.includes(cond.value)}
+                onChange={() =>
+                  updateAndNotify({ ...filters, conditions: toggleArrayValue(filters.conditions, cond.value) })
+                }
+                className={checkboxClass(filters.conditions.includes(cond.value))}
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white capitalize transition-colors">{cond.value}</span>
+            </label>
           ))}
         </div>
       </div>

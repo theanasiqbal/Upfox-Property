@@ -18,6 +18,8 @@ import {
   Mail,
   MessageCircle,
   CheckCircle,
+  ShieldCheck,
+  Building2
 } from 'lucide-react';
 
 interface PropertyDetailClientProps {
@@ -33,7 +35,7 @@ export function PropertyDetailClient({
   priceDisplay,
 }: PropertyDetailClientProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isSaved, setIsSaved] = useState(false);
+  // const [isSaved, setIsSaved] = useState(false);
 
   const images = property.images?.length
     ? property.images
@@ -52,13 +54,13 @@ export function PropertyDetailClient({
 
         {/* Action buttons */}
         <div className="absolute top-4 right-4 flex gap-2">
-          <button
+          {/* <button
             onClick={() => setIsSaved(!isSaved)}
             className={`w-10 h-10 rounded-full backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all ${isSaved ? 'bg-red-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'
               }`}
           >
-            <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
-          </button>
+            <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} /> */}
+          {/* </button> */}
           <button className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 flex items-center justify-center transition-all">
             <Share2 className="w-5 h-5" />
           </button>
@@ -105,7 +107,7 @@ export function PropertyDetailClient({
               <div>
                 <div className="flex gap-2 mb-3">
                   <span className="px-3 py-1 text-xs font-semibold text-white bg-accent-purple rounded-full capitalize">
-                    {property.listingType === 'rent' ? 'For Rent' : 'For Sale'}
+                    {property.listingType === 'rent' ? 'For Rent' : property.listingType === 'sale' ? 'For Sale' : 'Buy'}
                   </span>
                   <span className="px-3 py-1 text-xs font-semibold text-accent-purple bg-accent-purple/10 dark:bg-accent-purple/20 rounded-full capitalize">
                     {property.propertyType}
@@ -127,13 +129,13 @@ export function PropertyDetailClient({
             {/* Specs */}
             <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-100 dark:border-white/10">
               {[
-                { icon: Bed, label: 'Bedrooms', value: property.bedrooms },
-                { icon: Bath, label: 'Bathrooms', value: property.bathrooms },
+                { icon: Building2, label: 'Condition', value: property.condition || 'N/A' },
+                { icon: ShieldCheck, label: 'BDA Approved', value: property.bdaApproved ? 'Yes' : 'No' },
                 { icon: Maximize, label: 'Area', value: `${property.area} sqft` },
               ].map((spec) => (
                 <div key={spec.label} className="text-center p-4 bg-gray-50 dark:bg-white/5 rounded-xl">
                   <spec.icon className="w-6 h-6 text-accent-purple mx-auto mb-2" />
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">{spec.value}</p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white capitalize truncate">{spec.value}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{spec.label}</p>
                 </div>
               ))}
@@ -150,15 +152,18 @@ export function PropertyDetailClient({
           <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 p-8">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Amenities</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {property.amenities.map((amenity) => (
-                <div
-                  key={amenity.id}
-                  className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10"
-                >
-                  <CheckCircle className="w-4 h-4 text-accent-purple flex-shrink-0" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">{amenity.name}</span>
-                </div>
-              ))}
+              {property.amenities.map((amenity, idx) => {
+                const name = typeof amenity === 'string' ? amenity : amenity?.name;
+                return (
+                  <div
+                    key={name || idx}
+                    className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10"
+                  >
+                    <CheckCircle className="w-4 h-4 text-accent-purple flex-shrink-0" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{name}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -168,7 +173,7 @@ export function PropertyDetailClient({
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
                 <Calendar className="w-5 h-5 text-accent-purple flex-shrink-0" />
-                <span className="text-sm">Listed: {new Date(property.listingDate).toLocaleDateString()}</span>
+                <span className="text-sm">Listed: {new Date(property.listingDate).toLocaleDateString('en-IN')}</span>
               </div>
               <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
                 <Maximize className="w-5 h-5 text-accent-purple flex-shrink-0" />
@@ -178,85 +183,8 @@ export function PropertyDetailClient({
           </div>
         </div>
 
-        {/* Right Column - Contact / Inquiry */}
+        {/* Right Column - Inquiry Form */}
         <div className="space-y-6">
-          {/* Owner / Direct Contact Card */}
-          <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 font-heading">Contact Owner</h3>
-            <div className="flex items-center gap-4 mb-5">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-dark-blue to-gold flex items-center justify-center text-white text-lg font-bold">
-                {property.ownerName?.charAt(0) || 'O'}
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">{property.ownerName || 'Owner'}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Property Owner</p>
-              </div>
-            </div>
-
-            {/* Contact details */}
-            <div className="space-y-3 mb-5">
-              {property.ownerPhone && (
-                <a href={`tel:${property.ownerPhone}`} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors">
-                  <Phone className="w-4 h-4" />
-                  +91 {property.ownerPhone}
-                </a>
-              )}
-              {property.ownerEmail && (
-                <a href={`mailto:${property.ownerEmail}`} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors">
-                  <Mail className="w-4 h-4" />
-                  {property.ownerEmail}
-                </a>
-              )}
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="space-y-3">
-              <a
-                href={`tel:${property.ownerPhone || ''}`}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-dark-blue hover:bg-dark-blue-dark text-white font-semibold rounded-xl text-sm transition-all"
-              >
-                <Phone className="w-4 h-4" />
-                Call Now
-              </a>
-              <a
-                href={`https://wa.me/91${property.ownerPhone || ''}?text=${encodeURIComponent(`Hi, I am interested in: ${property.title}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl text-sm transition-all"
-              >
-                <MessageCircle className="w-4 h-4" />
-                WhatsApp
-              </a>
-            </div>
-          </div>
-
-          {/* Listed By (Seller from system) */}
-          {seller && (
-            <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl rounded-2xl border border-gray-100 dark:border-white/10 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 font-heading">Listed By</h3>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent-purple to-accent-purple-dark flex items-center justify-center text-white text-lg font-bold">
-                  {seller.name.charAt(0)}
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">{seller.name}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Property Seller</p>
-                </div>
-              </div>
-              <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-white/10">
-                <a href={`mailto:${seller.email}`} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors">
-                  <Mail className="w-4 h-4" />
-                  {seller.email}
-                </a>
-                <a href={`tel:${seller.phone}`} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors">
-                  <Phone className="w-4 h-4" />
-                  {seller.phone}
-                </a>
-              </div>
-            </div>
-          )}
-
-          {/* Inquiry Form */}
           <div className="sticky top-20">
             <InquiryForm propertyId={property.id} propertyTitle={property.title} />
           </div>

@@ -25,9 +25,45 @@ const openSans = Open_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Upfoxx Floors – Bareilly Real Estate & Workspace Solutions',
-  description: 'Find premium office spaces, co-working hubs, rental homes & commercial properties in Civil Lines & prime Bareilly locations. Verified listings, transparent pricing, admin-approved properties.',
-}
+  title: {
+    default: 'Upfoxx Floors – Commercial Real Estate | Managed Workspaces | Property Management',
+    template: '%s | Upfoxx Floors',
+  },
+  description: 'Find premium office spaces, co-working hubs, meeting rooms, rental homes & commercial properties in prime locations. Verified listings, transparent pricing, admin-approved properties.',
+  keywords: [
+    'office space', 'co-working', 'meeting rooms',
+    'property management', 'commercial real estate',
+    'residential properties', 'Upfoxx Floors',
+    'workspace', 'partner real estate',
+  ],
+  icons: {
+    icon: '/upfoxx%20logo.png',
+    shortcut: '/upfoxx%20logo.png',
+    apple: '/upfoxx%20logo.png',
+    other: {
+      rel: 'apple-touch-icon-precomposed',
+      url: '/upfoxx%20logo.png',
+    },
+  },
+  openGraph: {
+    title: 'Upfoxx Floors – Commercial Real Estate | Managed Workspaces | Property Management',
+    description: 'Premium office spaces, co-working, meeting rooms, property management & partnership opportunities.',
+    url: 'https://upfoxxfloors.co.in',
+    siteName: 'Upfoxx Floors',
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Upfoxx Floors – Real Estate & Workspace Solutions',
+    description: 'Premium office spaces, co-working, meeting rooms & property management.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  metadataBase: new URL('https://upfoxxfloors.co.in'),
+};
 
 export default function RootLayout({
   children,

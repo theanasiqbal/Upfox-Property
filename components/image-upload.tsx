@@ -4,63 +4,71 @@ import { useCallback, useState } from 'react';
 import { Upload, X, GripVertical } from 'lucide-react';
 
 interface ImageUploadProps {
-  onImagesChange: (images: File[]) => void;
+  onImagesChange: (urls: string[]) => void;
   maxImages?: number;
   existingImages?: string[];
 }
 
 export function ImageUpload({ onImagesChange, maxImages = 10, existingImages = [] }: ImageUploadProps) {
-  const [images, setImages] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [previews, setPreviews] = useState<string[]>(existingImages);
   const [isDragging, setIsDragging] = useState(false);
+  const [error, setError] = useState('');
+
+  const uploadFiles = async (files: File[]) => {
+    if (previews.length >= maxImages) return;
+    const remaining = maxImages - previews.length;
+    const filesToUpload = files.slice(0, remaining);
+
+    setUploading(true);
+    setError('');
+    try {
+      const formData = new FormData();
+      filesToUpload.forEach((f) => formData.append('images', f));
+
+      const res = await fetch('/api/upload/images', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+      const newUrls: string[] = data.images.map((img: { url: string }) => img.url);
+      const updated = [...previews, ...newUrls];
+      setPreviews(updated);
+      onImagesChange(updated);
+    } catch (e: any) {
+      setError(e.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
-      const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
-      addImages(files);
+      uploadFiles(Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/')));
     },
-    [images, maxImages]
+    [previews, maxImages]
   );
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    addImages(files);
-  };
-
-  const addImages = (newFiles: File[]) => {
-    const remaining = maxImages - images.length;
-    const filesToAdd = newFiles.slice(0, remaining);
-    const updated = [...images, ...filesToAdd];
-    setImages(updated);
-    onImagesChange(updated);
-
-    // Create previews
-    filesToAdd.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviews((prev) => [...prev, e.target?.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
+    uploadFiles(Array.from(e.target.files || []));
   };
 
   const removeImage = (index: number) => {
-    const updated = images.filter((_, i) => i !== index);
-    setImages(updated);
+    const updated = previews.filter((_, i) => i !== index);
+    setPreviews(updated);
     onImagesChange(updated);
-    setPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
     <div className="space-y-4">
       {/* Drop Zone */}
       <div
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${isDragging
@@ -69,40 +77,32 @@ export function ImageUpload({ onImagesChange, maxImages = 10, existingImages = [
           }`}
       >
         <label className="cursor-pointer">
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleFileInput}
-            className="hidden"
-          />
+          <input type="file" multiple accept="image/*" onChange={handleFileInput} className="hidden" />
           <div className="flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-accent-purple/10 dark:bg-accent-purple/20 flex items-center justify-center mb-4">
               <Upload className="w-7 h-7 text-accent-purple" />
             </div>
             <p className="text-gray-900 dark:text-white font-medium mb-1">
-              {isDragging ? 'Drop images here' : 'Drag & drop images here'}
+              {uploading ? 'Uploading to Cloudinary…' : isDragging ? 'Drop images here' : 'Drag & drop images here'}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               or <span className="text-accent-purple font-medium">browse files</span>
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-              {images.length}/{maxImages} images • PNG, JPG, WebP up to 5MB
+              {previews.length}/{maxImages} images • PNG, JPG, WebP up to 5MB
             </p>
           </div>
         </label>
       </div>
 
-      {/* Image Previews */}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+
+      {/* Previews */}
       {previews.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {previews.map((preview, index) => (
+          {previews.map((url, index) => (
             <div key={index} className="relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-navy-700 aspect-video">
-              <img
-                src={preview}
-                alt={`Preview ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
+              <img src={url} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <button
                   type="button"

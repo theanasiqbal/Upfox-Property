@@ -34,7 +34,7 @@ export default function ServicesPage() {
                         Our <span className="text-gold">Services</span>
                     </h1>
                     <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                        Comprehensive real estate & workspace solutions tailored for Bareilly&apos;s business owners, startups, professionals, and families.
+                        Comprehensive real estate & workspace solutions tailored for business owners, startups, professionals, and families.
                     </p>
                 </div>
             </section>

@@ -71,7 +71,10 @@ export function SidebarNav({ items, title = 'Menu' }: SidebarNavProps) {
             {items.map((item) => {
               // Check if the current path is exactly the item href OR if it starts with item href + '/'
               // This prevents '/admin' from matching '/admin/properties'
-              const isActive = pathname === item.href || (pathname.startsWith(item.href + '/') && item.href !== '/admin' && item.href !== '/dashboard/seller');
+              const isExactMatch = pathname === item.href;
+              const isNestedMatch = pathname.startsWith(item.href + '/') && item.href !== '/admin' && item.href !== '/dashboard/user';
+              const isPropertiesPendingConflict = item.href === '/admin/properties' && pathname.startsWith('/admin/properties/pending');
+              const isActive = isExactMatch || (isNestedMatch && !isPropertiesPendingConflict);
 
               return (
                 <Link

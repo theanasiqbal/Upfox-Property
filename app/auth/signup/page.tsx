@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/lib/auth-context';
-import { User, Mail, Phone, Lock, AlertCircle, Home } from 'lucide-react';
+import { User, Mail, Phone, Lock, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
 
 interface SignupFormData {
   name: string;
@@ -22,13 +23,14 @@ export default function SignupPage() {
   const { register, handleSubmit, formState: { errors }, watch, setError } = useForm<SignupFormData>();
   const [generalError, setGeneralError] = useState<string>('');
 
+
   const onSubmit = async (data: SignupFormData) => {
     try {
       setGeneralError('');
       if (!data.terms) { setError('terms', { message: 'You must agree to the terms' }); return; }
       if (data.password !== data.confirmPassword) { setError('confirmPassword', { message: 'Passwords do not match' }); return; }
-      await signup(data.name, data.email, data.phone, data.password);
-      router.push('/dashboard/seller');
+      await signup(data.name, data.email, data.phone, data.password, 'user');
+      router.push('/dashboard/user');
     } catch (error) {
       setGeneralError(error instanceof Error ? error.message : 'Signup failed. Please try again.');
     }
@@ -55,10 +57,14 @@ export default function SignupPage() {
       <div className="w-full max-w-sm relative z-10">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-4">
-          <div className="w-9 h-9 bg-gradient-to-br from-accent-purple to-accent-purple-dark rounded-xl flex items-center justify-center shadow-lg shadow-accent-purple/25">
-            <Home className="w-4.5 h-4.5 text-white" />
-          </div>
-          <span className="text-2xl font-bold text-gray-900 dark:text-white">Upfoxx</span>
+          <Image
+            src="/upfoxx logo.png"
+            alt="Upfoxx Floors"
+            width={50}
+            height={50}
+            className="rounded-lg"
+          />
+          <span className="text-2xl font-bold text-gray-900 dark:text-white">Upfoxx Properties</span>
         </div>
 
         {/* Title */}
@@ -75,6 +81,8 @@ export default function SignupPage() {
 
         {/* Form Card */}
         <form onSubmit={handleSubmit(onSubmit)} className="bg-white dark:bg-white/5 dark:backdrop-blur-2xl rounded-2xl shadow-lg dark:shadow-none border border-gray-100 dark:border-white/10 p-5 space-y-3">
+          {/* Role Selector */}
+
           {/* Name & Phone row */}
           <div className="grid grid-cols-2 gap-3">
             <div>

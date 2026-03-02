@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useMemo, Suspense } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { PropertyCard } from '@/components/property-card';
 import { FilterPanel, FilterState } from '@/components/filter-panel';
-import { MOCK_PROPERTIES } from '@/lib/data';
 import { ITEMS_PER_PAGE } from '@/lib/constants';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -18,40 +17,78 @@ export default function PropertiesPage() {
     propertyTypes: [],
     listingTypes: [],
     priceRange: null,
-    bedrooms: [],
-    bathrooms: [],
+    conditions: [],
     amenities: [],
   });
+  const [properties, setProperties] = useState<any[]>([]);
+  const [isFetching, setIsFetching] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<'newest' | 'price-low' | 'price-high'>('newest');
 
+  // Fetch properties from DB
+  useEffect(() => {
+    async function fetchProperties() {
+      try {
+        setIsFetching(true);
+        // We use limit=1000 since filtering is entirely client-side 
+        // A future optimization could move DB-level filtering to the backend
+        const res = await fetch('/api/properties?limit=1000&status=approved');
+        const data = await res.json();
+
+        if (res.ok && data.properties) {
+          // Map DB structure (_id) to UI structure (id)
+          // Map string amenities to object arrays { id, name } expected by the filter
+          const mappedProperties = data.properties.map((p: any) => ({
+            ...p,
+            id: p._id,
+            amenities: p.amenities ? p.amenities.map((a: string) => ({ id: a, name: a })) : []
+          }));
+          setProperties(mappedProperties);
+        }
+      } catch (err) {
+        console.error('Failed to fetch properties', err);
+      } finally {
+        setIsFetching(false);
+      }
+    }
+    fetchProperties();
+  }, []);
+
   // Filter properties
   const filteredProperties = useMemo(() => {
-    return MOCK_PROPERTIES.filter((prop) => {
+    return properties.filter((prop) => {
       if (prop.status !== 'approved') return false;
       if (filters.cities.length > 0 && !filters.cities.includes(prop.location)) return false;
       if (filters.propertyTypes.length > 0 && !filters.propertyTypes.includes(prop.propertyType))
         return false;
-      if (filters.listingTypes.length > 0 && !filters.listingTypes.includes(prop.listingType))
-        return false;
+      if (filters.listingTypes.length > 0) {
+        const checkTypes = filters.listingTypes.flatMap(t => t === 'buy' ? ['buy', 'sale'] : [t]);
+        if (!checkTypes.includes(prop.listingType)) return false;
+      }
       if (
         filters.priceRange &&
         (prop.price < filters.priceRange.min || prop.price > filters.priceRange.max)
       )
         return false;
-      if (filters.bedrooms.length > 0 && !filters.bedrooms.includes(prop.bedrooms))
-        return false;
-      if (filters.bathrooms.length > 0 && !filters.bathrooms.includes(prop.bathrooms))
+      if (filters.conditions.length > 0 && !filters.conditions.includes(prop.condition))
         return false;
       if (filters.amenities.length > 0) {
-        const propAmenityIds = prop.amenities.map((a) => a.id);
+        const propAmenityIds = prop.amenities.map((a: { id: string, name: string }) => a.id);
         if (!filters.amenities.every((a) => propAmenityIds.includes(a as string))) return false;
       }
       return true;
     });
-  }, [filters]);
+  }, [filters, properties]);
+
+  const isFilterActive =
+    filters.cities.length > 0 ||
+    filters.propertyTypes.length > 0 ||
+    filters.listingTypes.length > 0 ||
+    filters.priceRange !== null ||
+    filters.conditions.length > 0 ||
+    filters.amenities.length > 0;
 
   // Sort properties
   const sortedProperties = useMemo(() => {
@@ -75,7 +112,7 @@ export default function PropertiesPage() {
         <Header />
       </Suspense>
 
-      <main className="container mx-auto px-4 pt-24 pb-16">
+      <main className="container mx-auto px-4 pt-16 pb-16">
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
@@ -140,7 +177,23 @@ export default function PropertiesPage() {
 
           {/* Properties Grid */}
           <div className="flex-1">
-            {sortedProperties.length > 0 ? (
+            {isFetching ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-white dark:bg-white/5 rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10 shadow-sm animate-pulse">
+                    <div className="h-56 bg-gray-200 dark:bg-white/5" />
+                    <div className="p-5 space-y-4">
+                      <div className="h-6 bg-gray-200 dark:bg-white/5 rounded-md w-3/4" />
+                      <div className="h-4 bg-gray-200 dark:bg-white/5 rounded-md w-1/2" />
+                      <div className="pt-4 border-t border-gray-100 dark:border-white/10 flex justify-between">
+                        <div className="h-4 bg-gray-200 dark:bg-white/5 rounded-md w-1/4" />
+                        <div className="h-4 bg-gray-200 dark:bg-white/5 rounded-md w-1/4" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : sortedProperties.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                   {currentProperties.map((property) => (
@@ -173,24 +226,29 @@ export default function PropertiesPage() {
               </>
             ) : (
               <div className="text-center py-20 bg-white dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/10">
-                <p className="text-xl text-gray-600 dark:text-gray-300">No properties found matching your criteria.</p>
-                <button
-                  onClick={() => {
-                    setFilters({
-                      cities: [],
-                      propertyTypes: [],
-                      listingTypes: [],
-                      priceRange: null,
-                      bedrooms: [],
-                      bathrooms: [],
-                      amenities: [],
-                    });
-                    setCurrentPage(1);
-                  }}
-                  className="mt-4 text-accent-purple hover:underline font-medium"
-                >
-                  Clear all filters
-                </button>
+                <p className="text-xl text-gray-600 dark:text-gray-300">
+                  {isFilterActive
+                    ? "No properties found matching your criteria."
+                    : "No properties available right now. Please check back later!"}
+                </p>
+                {isFilterActive && (
+                  <button
+                    onClick={() => {
+                      setFilters({
+                        cities: [],
+                        propertyTypes: [],
+                        listingTypes: [],
+                        priceRange: null,
+                        conditions: [],
+                        amenities: [],
+                      });
+                      setCurrentPage(1);
+                    }}
+                    className="mt-4 text-accent-purple hover:underline font-medium"
+                  >
+                    Clear all filters
+                  </button>
+                )}
               </div>
             )}
           </div>

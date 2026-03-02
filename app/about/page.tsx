@@ -23,7 +23,7 @@ export default function AboutPage() {
                         About <span className="text-gold">Upfoxx Floors</span>
                     </h1>
                     <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                        Your trusted partner for real estate & workspace solutions in Bareilly since day one.
+                        Your trusted partner for real estate & workspace solutions since day one.
                     </p>
                 </div>
             </section>
@@ -34,10 +34,10 @@ export default function AboutPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div>
                             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6 font-heading">
-                                Bareilly&apos;s Premier <span className="gradient-text">Real Estate</span> Platform
+                                Premier <span className="gradient-text">Real Estate</span> Platform
                             </h2>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                                Upfoxx Floors was born from a simple vision — to transform how people find and manage properties in Bareilly. Located in the heart of Civil Lines, we understand the local market like no one else.
+                                Upfoxx Floors was born from a simple vision — to transform how people find and manage properties. Located in the heart of Civil Lines, we understand the local market like no one else.
                             </p>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
                                 Whether you&apos;re a startup founder looking for a co-working space, a family searching for the perfect home, or a business owner seeking prime office space — Upfoxx Floors is your one-stop solution.
@@ -70,7 +70,7 @@ export default function AboutPage() {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 font-heading">Our Mission</h3>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm">
-                                To provide Bareilly with a trusted, transparent, and technology-driven real estate platform that simplifies property search, workspace solutions, and property management.
+                                To provide a trusted, transparent, and technology-driven real estate platform that simplifies property search, workspace solutions, and property management.
                             </p>
                         </div>
 
@@ -80,7 +80,7 @@ export default function AboutPage() {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 font-heading">Our Vision</h3>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm">
-                                To become the most trusted real estate brand in Bareilly, setting the gold standard for verified listings, premium workspace solutions, and professional property management.
+                                To become the most trusted real estate brand, setting the gold standard for verified listings, premium workspace solutions, and professional property management.
                             </p>
                         </div>
 
@@ -104,7 +104,7 @@ export default function AboutPage() {
                         {[
                             { number: '500+', label: 'Properties Listed', icon: MapPin },
                             { number: '200+', label: 'Happy Clients', icon: Users },
-                            { number: '10+', label: 'Bareilly Areas Covered', icon: Target },
+                            { number: '10+', label: 'Areas Covered', icon: Target },
                             { number: '100%', label: 'Verified Listings', icon: ShieldCheck },
                         ].map((stat, idx) => (
                             <div key={idx} className="bg-gray-50 dark:bg-white/5 rounded-2xl p-8 text-center border border-gray-100 dark:border-white/10 hover:scale-105 transition-all duration-300 group">
@@ -125,7 +125,7 @@ export default function AboutPage() {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                         {[
-                            'Dedicated focus on Bareilly & Civil Lines',
+                            'Dedicated focus on prime locations',
                             'Workspace solutions — office, co-working, meeting rooms',
                             'Transparent pricing with no hidden charges',
                             'End-to-end property management services',

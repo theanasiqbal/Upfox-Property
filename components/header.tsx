@@ -19,17 +19,18 @@ export function Header() {
 
   const navItems = [
     { label: 'Home', href: '/', match: (p: string) => p === '/' },
+    { label: 'About Us', href: '/about', match: (p: string) => p === '/about' },
     { label: 'Services', href: '/services', match: (p: string) => p === '/services' },
     { label: 'Properties', href: '/properties', match: (p: string) => p === '/properties' || p.startsWith('/properties/') },
-    { label: 'About Us', href: '/about', match: (p: string) => p === '/about' },
     { label: 'Contact', href: '/contact', match: (p: string) => p === '/contact' },
+    { label: 'Partner With Us', href: '/partner', match: (p: string) => p === '/partner' },
   ];
 
   const isActive = (item: typeof navItems[0]) => item.match(pathname);
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 dark:bg-navy-800/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-white/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo Section */}
           <div className="flex-shrink-0">
@@ -48,7 +49,7 @@ export function Header() {
           </div>
 
           {/* Desktop Navigation — Centered */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden xl:flex items-center gap-1">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -88,10 +89,10 @@ export function Header() {
                 ) : (
                   <>
                     <Link
-                      href="/dashboard/seller"
+                      href="/dashboard/user"
                       className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors"
                     >
-                      Dashboard
+                      Profile
                     </Link>
                     <PostPropertyDialog />
                   </>
@@ -119,7 +120,7 @@ export function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+              className="xl:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -128,7 +129,7 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <nav className="lg:hidden border-t border-gray-200 dark:border-white/10 py-4 space-y-1">
+          <nav className="xl:hidden border-t border-gray-200 dark:border-white/10 py-4 space-y-1">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -156,11 +157,11 @@ export function Header() {
                   ) : (
                     <>
                       <Link
-                        href="/dashboard/seller"
+                        href="/dashboard/user"
                         className="block px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl text-sm font-medium"
                         onClick={() => setIsOpen(false)}
                       >
-                        Dashboard
+                        Profile
                       </Link>
                       <PostPropertyDialog trigger={
                         <span className="block px-4 py-3 btn-gradient rounded-xl text-sm text-center font-semibold">

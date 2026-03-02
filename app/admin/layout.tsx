@@ -3,7 +3,7 @@
 import { ReactNode } from 'react';
 import { ProtectedRoute } from '@/components/protected-route';
 import { SidebarNav } from '@/components/sidebar-nav';
-import { LayoutGrid, Home, CheckCircle, Users } from 'lucide-react';
+import { LayoutGrid, Home, CheckCircle, Users, MessageSquare, Handshake, Star, Mail } from 'lucide-react';
 
 const adminNavItems = [
   {
@@ -18,13 +18,33 @@ const adminNavItems = [
   },
   {
     label: 'Pending Approvals',
-    href: '/admin/properties?status=pending',
+    href: '/admin/properties/pending',
     icon: <CheckCircle className="w-5 h-5" />,
   },
   {
     label: 'Users',
     href: '/admin/users',
     icon: <Users className="w-5 h-5" />,
+  },
+  {
+    label: 'Enquiries',
+    href: '/admin/enquiries',
+    icon: <MessageSquare className="w-5 h-5" />,
+  },
+  {
+    label: 'Contacts',
+    href: '/admin/contacts',
+    icon: <Mail className="w-5 h-5" />,
+  },
+  {
+    label: 'Partners',
+    href: '/admin/partners',
+    icon: <Handshake className="w-5 h-5" />,
+  },
+  {
+    label: 'Testimonials',
+    href: '/admin/testimonials',
+    icon: <Star className="w-5 h-5" />,
   },
 ];
 

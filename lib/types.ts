@@ -13,8 +13,8 @@ export interface User {
 }
 
 // Property Types
-export type PropertyType = 'apartment' | 'house' | 'villa' | 'plot' | 'commercial' | 'office' | 'co-working' | 'meeting-room';
-export type ListingType = 'sale' | 'rent';
+export type PropertyType = 'apartment' | 'house' | 'villa' | 'plot' | 'commercial' | 'office' | 'co-working' | 'meeting-room' | 'pg-male' | 'pg-female';
+export type ListingType = 'buy' | 'sale' | 'rent';
 export type PropertyStatus = 'pending' | 'approved' | 'rejected' | 'archived';
 
 export interface Amenity {
@@ -33,9 +33,9 @@ export interface Property {
   city: string;
   state: string;
   zipcode: string;
-  bedrooms: number;
-  bathrooms: number;
+  condition: string;
   area: number; // in sq ft
+  bdaApproved: boolean;
   amenities: Amenity[];
   images: string[];
   listingDate: string;

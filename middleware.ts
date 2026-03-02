@@ -1,52 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyToken } from '@/lib/jwt';
 
-// Define protected routes
-const protectedRoutes = {
-  admin: ['/admin'],
-  seller: ['/dashboard/seller'],
-};
+const PROTECTED_ADMIN = ['/admin'];
+const PROTECTED_SELLER = ['/dashboard/seller'];
 
-export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-  // // Check if it's an admin route
-  // const isAdminRoute = protectedRoutes.admin.some((route) =>
-  //   pathname.startsWith(route)
-  // );
+  const isAdminRoute = PROTECTED_ADMIN.some((r) => pathname.startsWith(r));
+  const isSellerRoute = PROTECTED_SELLER.some((r) => pathname.startsWith(r));
 
-  // // Check if it's a seller route
-  // const isSellerRoute = protectedRoutes.seller.some((route) =>
-  //   pathname.startsWith(route)
-  // );
+  if (!isAdminRoute && !isSellerRoute) return NextResponse.next();
 
-  // // For protected routes, you would typically check for a JWT token or session
-  // // This is a simplified example - in production, you'd validate the token
-  // const userRole = request.cookies.get('userRole')?.value;
-  // const isAuthenticated = request.cookies.get('authenticated')?.value === 'true';
+  const token = request.cookies.get('token')?.value;
 
-  // // Redirect unauthenticated users trying to access protected routes
-  // if ((isAdminRoute || isSellerRoute) && !isAuthenticated) {
-  //   return NextResponse.redirect(new URL('/auth/login', request.url));
-  // }
+  if (!token) {
+    const loginUrl = new URL('/auth/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
-  // // Redirect users to appropriate dashboard based on role
-  // if (isAdminRoute && userRole !== 'admin') {
-  //   return NextResponse.redirect(new URL('/dashboard/seller', request.url));
-  // }
+  try {
+    const payload = await verifyToken(token);
 
-  // if (isSellerRoute && userRole === 'admin') {
-  //   return NextResponse.redirect(new URL('/admin', request.url));
-  // }
+    // Admin route — must be admin role
+    if (isAdminRoute && payload.role !== 'admin') {
+      // Redirect sellers to their dashboard, buyers to home
+      const fallback = payload.role === 'seller' ? '/dashboard/seller' : '/';
+      return NextResponse.redirect(new URL(fallback, request.url));
+    }
 
-  return NextResponse.next();
+    // Seller dashboard — requires seller or admin role (buyers not allowed)
+    if (isSellerRoute && payload.role === 'buyer') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    return NextResponse.next();
+  } catch {
+    // Token invalid/expired — redirect to login
+    const loginUrl = new URL('/auth/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 }
 
-// Configure which routes the middleware runs on
 export const config = {
-  matcher: [
-    // Admin routes
-    // '/admin/:path*',
-    // Seller dashboard routes
-    // '/dashboard/seller/:path*',
-  ],
+  matcher: ['/admin/:path*', '/dashboard/seller/:path*'],
 };
