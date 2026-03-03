@@ -11,6 +11,7 @@ import { PropertyCard } from '@/components/property-card';
 import { MOCK_PROPERTIES } from '@/lib/data';
 import { CITIES, PROPERTY_TYPES, CONTACT } from '@/lib/constants';
 import { PostPropertyDialog } from '@/components/post-property-dialog';
+import { CityAutocomplete } from '@/components/city-autocomplete';
 import {
   Search, Home, Users, Trophy, Award, Briefcase, CheckCircle, Phone,
   ArrowRight, Building2, Handshake, ShieldCheck, ChevronDown, MapPin,
@@ -204,13 +205,9 @@ export default function HomePage() {
               <div>
                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Location</label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400 dark:text-gray-500" />
-                  <input
-                    type="text"
+                  <CityAutocomplete
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Enter location"
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 text-gray-900 dark:text-white transition-all"
+                    onChange={(val) => setLocation(val)}
                   />
                 </div>
               </div>

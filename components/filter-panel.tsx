@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { CONDITIONS, PROPERTY_TYPES } from '@/lib/constants';
+import { CityAutocomplete } from '@/components/city-autocomplete';
 
 export interface FilterState {
   cities: string[];
@@ -85,14 +86,16 @@ export function FilterPanel({ onFilterChange, className = '' }: FilterPanelProps
 
       {/* Search */}
       <div className="mb-6">
+        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Location</label>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search location..."
+          <CityAutocomplete
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 text-sm transition-all"
+            onChange={(val) => {
+              setSearchTerm(val);
+              updateAndNotify({ ...filters, cities: val ? [val] : [] });
+            }}
+            placeholder="Search location..."
+            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 text-gray-900 dark:text-white transition-all"
           />
         </div>
       </div>

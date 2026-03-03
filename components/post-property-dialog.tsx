@@ -15,6 +15,7 @@ import {
     DialogDescription,
 } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
+import { CityAutocomplete } from '@/components/city-autocomplete';
 
 interface PropertyFormData {
     title: string;
@@ -352,12 +353,23 @@ export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogPro
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">City <span className="text-red-500">*</span></label>
-                                            <input
-                                                type="text"
-                                                {...register('city', { required: 'City is required' })}
-                                                className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple ${errors.city ? 'border-red-500' : 'border-gray-300 dark:border-white/20'}`}
-                                                placeholder="e.g. Bareilly"
-                                            />
+                                            <div className="relative">
+                                                <CityAutocomplete
+                                                    value={formData.city || ''}
+                                                    onChange={(val) => {
+                                                        // Fallback for manual typing where they don't select a suggestion
+                                                        // By default we update city text so it doesn't stay blocked
+                                                        setValue('city', val.split(',')[0], { shouldValidate: true });
+                                                    }}
+                                                    onSelect={(suggestion) => {
+                                                        setValue('city', suggestion.City, { shouldValidate: true });
+                                                        setValue('state', suggestion.State, { shouldValidate: true });
+                                                    }}
+                                                    placeholder="e.g. Bareilly"
+                                                    className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple ${errors.city ? 'border-red-500' : 'border-gray-300 dark:border-white/20'}`}
+                                                    icon={null}
+                                                />
+                                            </div>
                                             {errors.city && <p className="text-red-600 text-sm mt-1">{errors.city.message}</p>}
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">

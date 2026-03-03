@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { PropertyCard } from '@/components/property-card';
@@ -11,12 +12,14 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Filter } from 'lucide-react';
 
-export default function PropertiesPage() {
+function PropertiesContent() {
+  const searchParams = useSearchParams();
+
   const [filters, setFilters] = useState<FilterState>({
-    cities: [],
-    propertyTypes: [],
-    listingTypes: [],
-    priceRange: null,
+    cities: searchParams.get('location') ? [searchParams.get('location') as string] : [],
+    propertyTypes: searchParams.get('propertyType') ? [searchParams.get('propertyType') as string] : [],
+    listingTypes: searchParams.get('type') ? [searchParams.get('type') as string] : [],
+    priceRange: searchParams.get('maxPrice') ? { min: 0, max: parseInt(searchParams.get('maxPrice') as string) } : null,
     conditions: [],
     amenities: [],
   });
@@ -60,7 +63,10 @@ export default function PropertiesPage() {
   const filteredProperties = useMemo(() => {
     return properties.filter((prop) => {
       if (prop.status !== 'approved') return false;
-      if (filters.cities.length > 0 && !filters.cities.includes(prop.location)) return false;
+      if (filters.cities.length > 0) {
+        const checkCities = filters.cities.map(c => c.toLowerCase());
+        if (!prop.city || !checkCities.includes(prop.city.toLowerCase())) return false;
+      }
       if (filters.propertyTypes.length > 0 && !filters.propertyTypes.includes(prop.propertyType))
         return false;
       if (filters.listingTypes.length > 0) {
@@ -257,5 +263,13 @@ export default function PropertiesPage() {
 
       <Footer />
     </div >
+  );
+}
+
+export default function PropertiesPage() {
+  return (
+    <Suspense fallback={null}>
+      <PropertiesContent />
+    </Suspense>
   );
 }
