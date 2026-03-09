@@ -1,27 +1,46 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/lib/auth-context';
 import { StatusBadge } from '@/components/status-badge';
 import { AdminPagination } from '@/components/admin-pagination';
 import { AdminExportModal } from '@/components/admin-export-modal';
+import { AssignSubadminSelect } from '@/components/assign-subadmin-select';
 import { exportToExcel, ExportFilters } from '@/lib/export-excel';
-import { Trash2, PhoneCall, RefreshCw, XCircle, Search, ArrowUpDown, Download } from 'lucide-react';
+import { Trash2, PhoneCall, RefreshCw, XCircle, Search, ArrowUpDown, Download, Plus, X } from 'lucide-react';
+import { toast } from 'sonner';
+
+interface AddPartnerForm {
+    fullName: string;
+    email: string;
+    phone: string;
+    partnershipType: string;
+    organization: string;
+    message: string;
+    assignedTo: string;
+    assignedName: string;
+}
 
 interface Partner {
     _id: string; fullName: string; email: string; phone: string;
     partnershipType: string; organization?: string; message: string;
-    status: 'pending' | 'contacted' | 'closed'; createdAt: string;
+    status: 'pending' | 'contacted' | 'assigned' | 'closed';
+    assignedTo?: string; assignedName?: string; createdAt: string;
 }
 interface Pagination { page: number; limit: number; total: number; pages: number; }
 
-const STATUS_TABS = ['all', 'pending', 'contacted', 'closed'] as const;
-const PARTNERSHIP_TYPES = ['all', 'broker', 'agency', 'vendor', 'developer', 'other'];
+const STATUS_TABS = ['all', 'pending', 'contacted', 'assigned', 'closed'] as const;
+const PARTNERSHIP_TYPES = ['all', 'Property Broker', 'Real Estate Agent', 'Vendor/Supplier', 'Business Partner', 'other'];
 const EXPORT_STATUS_OPTIONS = [
     { value: 'all', label: 'All' }, { value: 'pending', label: 'Pending' },
-    { value: 'contacted', label: 'Contacted' }, { value: 'closed', label: 'Closed' },
+    { value: 'contacted', label: 'Contacted' }, { value: 'assigned', label: 'Assigned' },
+    { value: 'closed', label: 'Closed' },
 ];
 
 export default function AdminPartnersPage() {
+    const { currentUser } = useAuth();
+    const isAdmin = currentUser?.role === 'admin';
+
     const [partners, setPartners] = useState<Partner[]>([]);
     const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 15, total: 0, pages: 1 });
     const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +53,13 @@ export default function AdminPartnersPage() {
     const [page, setPage] = useState(1);
     const [showExport, setShowExport] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
+
+    // Add modal
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [addForm, setAddForm] = useState<AddPartnerForm>({
+        fullName: '', email: '', phone: '', partnershipType: '', organization: '', message: '', assignedTo: '', assignedName: ''
+    });
+    const [isAdding, setIsAdding] = useState(false);
 
     const fetchPartners = useCallback(async () => {
         setIsLoading(true);
@@ -64,6 +90,21 @@ export default function AdminPartnersPage() {
         } catch (error) { console.error('Error updating status', error); }
     };
 
+    const handleAssign = async (id: string, subadminId: string | null, subadminName: string | null) => {
+        try {
+            const res = await fetch('/api/admin/partners', {
+                method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, assignedTo: subadminId, assignedName: subadminName }),
+            });
+            if (res.ok) {
+                setPartners(prev => prev.map(p => p._id === id
+                    ? { ...p, assignedTo: subadminId || undefined, assignedName: subadminName || undefined, status: subadminId ? 'assigned' : 'pending' }
+                    : p));
+                toast.success(subadminId ? `Assigned to ${subadminName}` : 'Unassigned');
+            }
+        } catch (error) { console.error('Error assigning', error); }
+    };
+
     const handleDelete = async (id: string) => {
         if (!confirm('Delete this partner query?')) return;
         try {
@@ -87,16 +128,42 @@ export default function AdminPartnersPage() {
                 'Full Name': p.fullName, Email: p.email, Phone: p.phone || '—',
                 'Partnership Type': p.partnershipType, Organization: p.organization || 'Individual',
                 Message: p.message, Status: p.status.charAt(0).toUpperCase() + p.status.slice(1),
+                'Assigned To': p.assignedName || '—',
             }));
             const columns = [
                 { key: 'Date', label: 'Date' }, { key: 'Full Name', label: 'Full Name' },
                 { key: 'Email', label: 'Email' }, { key: 'Phone', label: 'Phone' },
                 { key: 'Partnership Type', label: 'Partnership Type' }, { key: 'Organization', label: 'Organization' },
                 { key: 'Message', label: 'Message' }, { key: 'Status', label: 'Status' },
+                { key: 'Assigned To', label: 'Assigned To' },
             ];
             exportToExcel(rows, columns, `partners-${new Date().toISOString().slice(0, 10)}`);
         } catch (err) { console.error('Export failed', err); }
         finally { setIsExporting(false); }
+    };
+
+    const handleAddPartner = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsAdding(true);
+        try {
+            const res = await fetch('/api/admin/partners', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(addForm),
+            });
+            if (!res.ok) {
+                const d = await res.json();
+                throw new Error(d.error || 'Failed to add partner query');
+            }
+            toast.success('Partnership query added successfully');
+            setShowAddModal(false);
+            setAddForm({ fullName: '', email: '', phone: '', partnershipType: '', organization: '', message: '', assignedTo: '', assignedName: '' });
+            fetchPartners();
+        } catch (err: any) {
+            toast.error(err.message || 'An error occurred');
+        } finally {
+            setIsAdding(false);
+        }
     };
 
     return (
@@ -106,9 +173,16 @@ export default function AdminPartnersPage() {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Partnership Queries</h1>
                     <p className="text-gray-600 dark:text-gray-400 mt-1">{pagination.total} total applications</p>
                 </div>
-                <button onClick={() => setShowExport(true)} className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
-                    <Download className="w-4 h-4" /> Export Excel
-                </button>
+                <div className="flex items-center gap-2">
+                    {isAdmin && (
+                        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2.5 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
+                            <Plus className="w-4 h-4" /> Add Query
+                        </button>
+                    )}
+                    <button onClick={() => setShowExport(true)} className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
+                        <Download className="w-4 h-4" /> Export Excel
+                    </button>
+                </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -124,10 +198,8 @@ export default function AdminPartnersPage() {
                     {PARTNERSHIP_TYPES.map(t => <option key={t} value={t}>{t === 'all' ? 'All Types' : t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
                 </select>
                 <select value={`${sortBy}-${sortOrder}`} onChange={e => { const [f, o] = e.target.value.split('-'); setSortBy(f); setSortOrder(o as 'asc' | 'desc'); }} className="px-3 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none">
-                    <option value="createdAt-desc">Newest First</option>
-                    <option value="createdAt-asc">Oldest First</option>
-                    <option value="fullName-asc">Name A–Z</option>
-                    <option value="fullName-desc">Name Z–A</option>
+                    <option value="createdAt-desc">Newest First</option><option value="createdAt-asc">Oldest First</option>
+                    <option value="fullName-asc">Name A–Z</option><option value="fullName-desc">Name Z–A</option>
                 </select>
             </div>
 
@@ -154,6 +226,7 @@ export default function AdminPartnersPage() {
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Type / Org</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Message</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-accent-purple" onClick={() => toggleSort('status')}><span className="flex items-center gap-1">Status <ArrowUpDown className="w-3 h-3" /></span></th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Assigned</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
@@ -166,18 +239,28 @@ export default function AdminPartnersPage() {
                                             <div className="text-sm text-gray-500 dark:text-gray-400">{partner.email}</div>
                                             <div className="text-sm text-gray-500 dark:text-gray-400">{partner.phone}</div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900 dark:text-white">{partner.partnershipType}</div>
-                                            <div className="text-sm text-gray-500 dark:text-gray-400">{partner.organization || 'Individual'}</div>
-                                        </td>
+                                        <td className="px-6 py-4"><div className="text-sm font-medium text-gray-900 dark:text-white">{partner.partnershipType}</div><div className="text-sm text-gray-500 dark:text-gray-400">{partner.organization || 'Individual'}</div></td>
                                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 max-w-xs"><p className="line-clamp-2" title={partner.message}>{partner.message}</p></td>
                                         <td className="px-6 py-4"><StatusBadge status={partner.status} /></td>
+                                        <td className="px-6 py-4">
+                                            {isAdmin ? (
+                                                <AssignSubadminSelect
+                                                    currentAssignedId={partner.assignedTo}
+                                                    currentAssignedName={partner.assignedName}
+                                                    onAssign={(sid, sname) => handleAssign(partner._id, sid, sname)}
+                                                />
+                                            ) : partner.assignedName ? (
+                                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs rounded-lg font-medium">{partner.assignedName}</span>
+                                            ) : (
+                                                <span className="text-xs text-gray-400">—</span>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4 text-sm whitespace-nowrap">
                                             <div className="flex items-center gap-2">
-                                                {partner.status === 'pending' && <button onClick={() => handleUpdateStatus(partner._id, 'contacted')} className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" title="Mark Contacted"><PhoneCall className="w-4 h-4" /></button>}
+                                                {(partner.status === 'pending' || partner.status === 'assigned') && <button onClick={() => handleUpdateStatus(partner._id, 'contacted')} className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" title="Mark Contacted"><PhoneCall className="w-4 h-4" /></button>}
                                                 {partner.status === 'contacted' && <button onClick={() => handleUpdateStatus(partner._id, 'closed')} className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors" title="Mark Closed"><XCircle className="w-4 h-4" /></button>}
-                                                {partner.status !== 'pending' && <button onClick={() => handleUpdateStatus(partner._id, 'pending')} className="p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" title="Re-open"><RefreshCw className="w-4 h-4" /></button>}
-                                                <button onClick={() => handleDelete(partner._id)} className="p-1.5 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                                                {isAdmin && partner.status !== 'pending' && <button onClick={() => handleUpdateStatus(partner._id, 'pending')} className="p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" title="Re-open"><RefreshCw className="w-4 h-4" /></button>}
+                                                {isAdmin && <button onClick={() => handleDelete(partner._id)} className="p-1.5 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>}
                                             </div>
                                         </td>
                                     </tr>
@@ -190,6 +273,65 @@ export default function AdminPartnersPage() {
             </div>
 
             <AdminExportModal open={showExport} onClose={() => setShowExport(false)} title="Export Partners" statusOptions={EXPORT_STATUS_OPTIONS} onExport={handleExport} isExporting={isExporting} />
+
+            {/* Add Modal */}
+            {showAddModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-navy-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 w-full max-w-xl max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-white/10 sticky top-0 bg-white dark:bg-navy-800 z-10">
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Add Partnership Query</h2>
+                            <button onClick={() => setShowAddModal(false)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
+                        </div>
+                        <form onSubmit={handleAddPartner} className="p-5 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Full Name *</label>
+                                    <input required value={addForm.fullName} onChange={e => setAddForm(f => ({ ...f, fullName: e.target.value }))} className="w-full px-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent-purple/30" placeholder="John Doe" />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Phone *</label>
+                                    <input required value={addForm.phone} onChange={e => setAddForm(f => ({ ...f, phone: e.target.value }))} className="w-full px-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent-purple/30" placeholder="+91..." />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Email *</label>
+                                <input required type="email" value={addForm.email} onChange={e => setAddForm(f => ({ ...f, email: e.target.value }))} className="w-full px-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent-purple/30" placeholder="john@example.com" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Partnership Type *</label>
+                                    <select required value={addForm.partnershipType} onChange={e => setAddForm(f => ({ ...f, partnershipType: e.target.value }))} className="w-full px-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent-purple/30">
+                                        <option value="">Select a type...</option>
+                                        {PARTNERSHIP_TYPES.filter(t => t !== 'all').map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Organization</label>
+                                    <input value={addForm.organization} onChange={e => setAddForm(f => ({ ...f, organization: e.target.value }))} className="w-full px-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent-purple/30" placeholder="e.g. Acme Corp" />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Message *</label>
+                                <textarea required rows={3} value={addForm.message} onChange={e => setAddForm(f => ({ ...f, message: e.target.value }))} className="w-full px-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent-purple/30 resize-none" placeholder="Message content..." />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Assign to Subadmin (optional)</label>
+                                <AssignSubadminSelect
+                                    currentAssignedId={addForm.assignedTo || undefined}
+                                    currentAssignedName={addForm.assignedName || undefined}
+                                    onAssign={(sid, sname) => setAddForm(f => ({ ...f, assignedTo: sid || '', assignedName: sname || '' }))}
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 px-4 py-2.5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">Cancel</button>
+                                <button type="submit" disabled={isAdding} className="flex-1 px-4 py-2.5 bg-accent-purple text-white rounded-xl text-sm font-semibold hover:bg-accent-purple/90 disabled:opacity-50 transition-colors">
+                                    {isAdding ? 'Adding…' : 'Add Query'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

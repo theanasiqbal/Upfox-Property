@@ -1,5 +1,5 @@
 // User Types
-export type UserRole = 'user' | 'admin';
+export type UserRole = 'user' | 'admin' | 'subadmin';
 
 export interface User {
   id: string;
@@ -35,6 +35,8 @@ export interface Property {
   zipcode: string;
   condition: string;
   area: number; // in sq ft
+  length?: number;
+  breadth?: number;
   bdaApproved: boolean;
   amenities: Amenity[];
   images: string[];

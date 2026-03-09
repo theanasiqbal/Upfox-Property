@@ -12,17 +12,18 @@ interface IUser {
   name: string;
   email: string;
   phone?: string;
-  role: 'admin' | 'user';
+  role: 'admin' | 'subadmin' | 'user';
   registrationDate: string;
 }
 
 interface Pagination { page: number; limit: number; total: number; pages: number; }
 
-const ROLE_TABS = ['all', 'user', 'admin'] as const;
+const ROLE_TABS = ['all', 'user', 'subadmin', 'admin'] as const;
 
 const EXPORT_ROLE_OPTIONS = [
   { value: 'all', label: 'All Users' },
   { value: 'user', label: 'Regular Users' },
+  { value: 'subadmin', label: 'Subadmins Only' },
   { value: 'admin', label: 'Admins Only' },
 ];
 
@@ -31,6 +32,8 @@ export default function AdminUsersPage() {
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 15, total: 0, pages: 1 });
   const [isLoading, setIsLoading] = useState(true);
   const [adminCount, setAdminCount] = useState(0);
+  const [subadminCount, setSubadminCount] = useState(0);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
   const [role, setRole] = useState<string>('all');
   const [search, setSearch] = useState('');
@@ -41,6 +44,16 @@ export default function AdminUsersPage() {
   const [showAddUser, setShowAddUser] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [page, setPage] = useState(1);
+
+  // Fetch current user's role from /api/auth/me
+  useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.user?.role) setCurrentUserRole(data.user.role); })
+      .catch(() => { });
+  }, []);
+
+  const isSubadmin = currentUserRole === 'subadmin';
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
@@ -73,8 +86,18 @@ export default function AdminUsersPage() {
     } catch { /* noop */ }
   }, []);
 
+  const fetchSubadminCount = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/users?role=subadmin&limit=1');
+      if (res.ok) {
+        const data = await res.json();
+        setSubadminCount(data.pagination.total);
+      }
+    } catch { /* noop */ }
+  }, []);
+
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
-  useEffect(() => { fetchAdminCount(); }, [fetchAdminCount]);
+  useEffect(() => { fetchAdminCount(); fetchSubadminCount(); }, [fetchAdminCount, fetchSubadminCount]);
   useEffect(() => { setPage(1); }, [role, search, sortBy, sortOrder]);
 
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setSearch(searchInput); };
@@ -85,7 +108,10 @@ export default function AdminUsersPage() {
   };
 
   const handleToggleAdmin = async (user: IUser) => {
-    const newRole = user.role === 'admin' ? 'user' : 'admin';
+    // Cycle: user → subadmin → admin → user (admins only)
+    const cycle: IUser['role'][] = ['user', 'subadmin', 'admin'];
+    const currentIdx = cycle.indexOf(user.role);
+    const newRole = cycle[(currentIdx + 1) % cycle.length];
     try {
       const res = await fetch('/api/admin/users', {
         method: 'PATCH',
@@ -95,8 +121,9 @@ export default function AdminUsersPage() {
       if (res.ok) {
         setUsers(prev => prev.map(u => u._id === user._id ? { ...u, role: newRole } : u));
         fetchAdminCount();
+        fetchSubadminCount();
       }
-    } catch (error) { console.error('Error toggling admin', error); }
+    } catch (error) { console.error('Error toggling role', error); }
   };
 
   const handleDelete = async (id: string) => {
@@ -107,6 +134,7 @@ export default function AdminUsersPage() {
         setUsers(prev => prev.filter(u => u._id !== id));
         setPagination(prev => ({ ...prev, total: prev.total - 1 }));
         fetchAdminCount();
+        fetchSubadminCount();
       }
     } catch (error) { console.error('Error deleting user', error); }
   };
@@ -140,6 +168,19 @@ export default function AdminUsersPage() {
     finally { setIsExporting(false); }
   };
 
+  // Role badge colour helper
+  const roleBadgeClass = (r: IUser['role']) => {
+    if (r === 'admin') return 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400';
+    if (r === 'subadmin') return 'bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400';
+    return 'bg-gray-100 text-gray-800 dark:bg-white/10 dark:text-gray-300';
+  };
+
+  const roleLabel = (r: IUser['role']) => {
+    if (r === 'admin') return 'Admin';
+    if (r === 'subadmin') return 'Sub-Admin';
+    return 'User';
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -148,9 +189,12 @@ export default function AdminUsersPage() {
           <p className="text-gray-600 dark:text-gray-400 mt-1">{pagination.total} total users</p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setShowAddUser(true)} className="flex items-center gap-2 px-4 py-2.5 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
-            <Plus className="w-4 h-4" /> Add Admin
-          </button>
+          {/* Only full admins can add users */}
+          {!isSubadmin && (
+            <button onClick={() => setShowAddUser(true)} className="flex items-center gap-2 px-4 py-2.5 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
+              <Plus className="w-4 h-4" /> Add Admin
+            </button>
+          )}
           <button onClick={() => setShowExport(true)} className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
             <Download className="w-4 h-4" /> Export Excel
           </button>
@@ -158,7 +202,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl p-5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Users</p>
           <p className="text-3xl font-bold text-gray-900 dark:text-white">{pagination.total}</p>
@@ -166,6 +210,10 @@ export default function AdminUsersPage() {
         <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl p-5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Admin Users</p>
           <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">{adminCount}</p>
+        </div>
+        <div className="bg-white dark:bg-white/5 dark:backdrop-blur-xl p-5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Sub-Admin Users</p>
+          <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{subadminCount}</p>
         </div>
       </div>
 
@@ -192,7 +240,7 @@ export default function AdminUsersPage() {
       <div className="flex gap-1 border-b border-gray-200 dark:border-white/10">
         {ROLE_TABS.map(tab => (
           <button key={tab} onClick={() => setRole(tab)} className={`px-4 py-2.5 font-medium text-sm border-b-2 transition-colors capitalize ${role === tab ? 'border-accent-purple text-accent-purple' : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}>
-            {tab === 'all' ? 'All Users' : tab === 'admin' ? 'Admins Only' : 'Regular Users'}
+            {tab === 'all' ? 'All Users' : tab === 'admin' ? 'Admins' : tab === 'subadmin' ? 'Sub-Admins' : 'Regular Users'}
           </button>
         ))}
       </div>
@@ -222,7 +270,8 @@ export default function AdminUsersPage() {
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 cursor-pointer hover:text-accent-purple" onClick={() => toggleSort('registrationDate')}>
                       <span className="flex items-center gap-1">Joined <ArrowUpDown className="w-3 h-3" /></span>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+                    {/* Actions column only shown to full admins */}
+                    {!isSubadmin && <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Actions</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-white/5">
@@ -232,8 +281,8 @@ export default function AdminUsersPage() {
                       <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{user.email}</td>
                       <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{user.phone || '—'}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400' : 'bg-gray-100 text-gray-800 dark:bg-white/10 dark:text-gray-300'}`}>
-                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${roleBadgeClass(user.role)}`}>
+                          {roleLabel(user.role)}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -243,16 +292,23 @@ export default function AdminUsersPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{new Date(user.registrationDate).toLocaleDateString()}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => handleToggleAdmin(user)} className={`p-2 rounded-lg transition-colors ${user.role === 'admin' ? 'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-500/10' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5'}`} title={user.role === 'admin' ? 'Remove Admin' : 'Make Admin'}>
-                            <Shield className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => handleDelete(user._id)} className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 rounded-lg transition-colors" title="Delete">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
+                      {/* Action buttons — hidden for subadmins */}
+                      {!isSubadmin && (
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleToggleAdmin(user)}
+                              className={`p-2 rounded-lg transition-colors ${user.role === 'admin' ? 'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-500/10' : user.role === 'subadmin' ? 'text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-500/10' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5'}`}
+                              title={`Currently: ${roleLabel(user.role)} — click to cycle role`}
+                            >
+                              <Shield className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleDelete(user._id)} className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 rounded-lg transition-colors" title="Delete">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -268,23 +324,26 @@ export default function AdminUsersPage() {
                       <h3 className="font-semibold text-gray-900 dark:text-white">{user.name}</h3>
                       <p className="text-sm text-gray-500">{user.email}</p>
                     </div>
-                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-medium ${user.role === 'admin' ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400' : 'bg-gray-100 text-gray-800 dark:bg-white/10 dark:text-gray-300'}`}>
-                      {user.role.toUpperCase()}
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-medium ${roleBadgeClass(user.role)}`}>
+                      {roleLabel(user.role).toUpperCase()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5 text-green-500" /> Verified</div>
                     <span>{new Date(user.registrationDate).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-50 dark:border-white/5">
-                    <button onClick={() => handleToggleAdmin(user)} className="p-2 text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-sm flex items-center gap-1">
-                      <Shield className="w-4 h-4" />
-                      {user.role === 'admin' ? 'Revoke Admin' : 'Make Admin'}
-                    </button>
-                    <button onClick={() => handleDelete(user._id)} className="p-2 text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {/* Action buttons — hidden for subadmins */}
+                  {!isSubadmin && (
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-50 dark:border-white/5">
+                      <button onClick={() => handleToggleAdmin(user)} className="p-2 text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-sm flex items-center gap-1">
+                        <Shield className="w-4 h-4" />
+                        {user.role === 'user' ? 'Make Sub-Admin' : user.role === 'subadmin' ? 'Make Admin' : 'Make User'}
+                      </button>
+                      <button onClick={() => handleDelete(user._id)} className="p-2 text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -309,6 +368,7 @@ export default function AdminUsersPage() {
           setUsers(prev => [newUser, ...prev]);
           setPagination(prev => ({ ...prev, total: prev.total + 1 }));
           if (newUser.role === 'admin') fetchAdminCount();
+          if (newUser.role === 'subadmin') fetchSubadminCount();
         }}
       />
     </div>

@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
         await connectDB();
 
-        if (payload.role === 'admin') {
+        if (payload.role === 'admin' || payload.role === 'subadmin') {
             const inquiries = await Inquiry.find().sort({ createdAt: -1 }).lean();
             return NextResponse.json({ inquiries });
         }

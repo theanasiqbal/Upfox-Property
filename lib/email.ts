@@ -9,7 +9,7 @@ const FROM: SendTransacEmailRequest['sender'] = {
   name: process.env.BREVO_FROM_NAME || 'Upfoxx Floors',
 };
 
-const ADMIN_EMAIL = 'info@upfoxxmedia.com';
+const ADMIN_EMAIL = 'support@upfoxxfloors.co.in';
 
 async function send(opts: SendTransacEmailRequest): Promise<void> {
   try {

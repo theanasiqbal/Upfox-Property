@@ -3,14 +3,16 @@ import { connectDB } from '@/lib/db/mongoose';
 import { Inquiry } from '@/lib/db/models/Inquiry';
 import { getUserFromCookies } from '@/lib/jwt';
 
-async function isAdmin() {
-    const payload = await getUserFromCookies();
-    return payload?.role === 'admin';
+async function getPayload() {
+    return getUserFromCookies();
 }
 
 export async function GET(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const payload = await getPayload();
+        if (!payload || (payload.role !== 'admin' && payload.role !== 'subadmin')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
         await connectDB();
         const { searchParams } = new URL(req.url);
@@ -27,6 +29,12 @@ export async function GET(req: NextRequest) {
         const dateTo = searchParams.get('dateTo');
 
         const filter: Record<string, unknown> = {};
+
+        // Subadmin sees only their assigned items
+        if (payload.role === 'subadmin') {
+            filter.assignedTo = payload.userId;
+        }
+
         if (status && status !== 'all') filter.status = status;
         if (dateFrom || dateTo) {
             filter.createdAt = {
@@ -64,21 +72,71 @@ export async function GET(req: NextRequest) {
     }
 }
 
-export async function PATCH(req: NextRequest) {
+export async function POST(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const payload = await getPayload();
+        if (!payload || payload.role !== 'admin') {
+            return NextResponse.json({ error: 'Forbidden — admin only' }, { status: 403 });
+        }
 
         const body = await req.json();
-        const { id, status } = body;
+        const { buyerName, buyerEmail, buyerPhone, propertyId, message, assignedTo, assignedName } = body;
 
-        if (!id || !['new', 'contacted', 'closed'].includes(status)) {
-            return NextResponse.json({ error: 'Invalid ID or status' }, { status: 400 });
+        if (!buyerName || !buyerEmail || !message || !propertyId) {
+            return NextResponse.json({ error: 'Name, email, propertyId and message are required' }, { status: 400 });
         }
 
         await connectDB();
-        const inquiry = await Inquiry.findByIdAndUpdate(id, { status }, { new: true });
+        const inquiry = await Inquiry.create({
+            buyerName,
+            buyerEmail,
+            buyerPhone: buyerPhone || '',
+            propertyId,
+            message,
+            status: assignedTo ? 'assigned' : 'new',
+            ...(assignedTo ? { assignedTo, assignedName } : {}),
+        });
 
-        if (!inquiry) return NextResponse.json({ error: 'Inquiry not found' }, { status: 404 });
+        return NextResponse.json({ success: true, inquiry }, { status: 201 });
+    } catch (err) {
+        console.error('[POST /api/admin/enquiries]', err);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}
+
+export async function PATCH(req: NextRequest) {
+    try {
+        const payload = await getPayload();
+        if (!payload || (payload.role !== 'admin' && payload.role !== 'subadmin')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const body = await req.json();
+        const { id, status, assignedTo, assignedName } = body;
+
+        if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+
+        await connectDB();
+
+        // Assignment — admin only
+        if (assignedTo !== undefined) {
+            if (payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+            const update: Record<string, unknown> = assignedTo
+                ? { assignedTo, assignedName, status: 'assigned' }
+                : { $unset: { assignedTo: '', assignedName: '' }, status: 'new' };
+            const inquiry = await Inquiry.findByIdAndUpdate(id, update, { new: true });
+            if (!inquiry) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+            return NextResponse.json({ success: true, inquiry });
+        }
+
+        // Status update
+        const validStatuses = ['new', 'contacted', 'assigned', 'closed'];
+        if (!status || !validStatuses.includes(status)) {
+            return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+        }
+
+        const inquiry = await Inquiry.findByIdAndUpdate(id, { status }, { new: true });
+        if (!inquiry) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
         return NextResponse.json({ success: true, inquiry });
     } catch (err) {
@@ -89,11 +147,13 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const payload = await getPayload();
+        if (!payload || (payload.role !== 'admin' && payload.role !== 'subadmin')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
         const { searchParams } = new URL(req.url);
         const id = searchParams.get('id');
-
         if (!id) return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
 
         await connectDB();

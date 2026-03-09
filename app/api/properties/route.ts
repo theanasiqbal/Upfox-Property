@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
         // Admin can see all, everyone else sees only approved
         const payload = await getUserFromCookies();
-        const isAdmin = payload?.role === 'admin';
+        const isAdmin = payload?.role === 'admin' || payload?.role === 'subadmin';
         const sellerOnly = searchParams.get('seller') === 'me' && payload;
 
         // Build filter
@@ -65,10 +65,12 @@ export async function POST(req: NextRequest) {
         const seller = await User.findById(payload.userId).lean();
         if (!seller) return NextResponse.json({ error: 'Seller not found' }, { status: 404 });
 
-        const isAdmin = payload.role === 'admin';
+        const isAdmin = payload.role === 'admin' || payload.role === 'subadmin';
 
         const property = await Property.create({
             ...body,
+            length: body.length || undefined,
+            breadth: body.breadth || undefined,
             sellerId: payload.userId,
             ownerName: seller.name,
             ownerPhone: seller.phone || '',

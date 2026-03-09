@@ -59,7 +59,7 @@ export default function PrivacyPage() {
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-heading mb-3">6. Contact Us</h2>
                             <p className="leading-relaxed">
                                 If you have any questions about this Privacy Policy, please contact us at{' '}
-                                <a href="mailto:info@upfoxxmedia.com" className="text-accent-purple hover:underline">info@upfoxxmedia.com</a> or call us at +91 7534835937.
+                                <a href="mailto:support@upfoxxfloors.co.in" className="text-accent-purple hover:underline">support@upfoxxfloors.co.in</a> or call us at +91 7534835937.
                             </p>
                         </div>
                     </div>

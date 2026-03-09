@@ -8,8 +8,10 @@ export interface IContact {
     propertyInterest?: string;
     inquiryType?: string;
     message: string;
-    status: 'new' | 'contacted' | 'closed';
+    status: 'new' | 'contacted' | 'assigned' | 'closed';
     isRead: boolean;
+    assignedTo?: mongoose.Types.ObjectId;
+    assignedName?: string;
     createdAt: Date;
 }
 
@@ -21,10 +23,14 @@ const ContactSchema = new Schema<IContact>(
         propertyInterest: { type: String },
         inquiryType: { type: String },
         message: { type: String, required: true },
-        status: { type: String, enum: ['new', 'contacted', 'closed'], default: 'new' },
+        status: { type: String, enum: ['new', 'contacted', 'assigned', 'closed'], default: 'new' },
         isRead: { type: Boolean, default: false },
+        assignedTo: { type: Schema.Types.ObjectId, ref: 'User' },
+        assignedName: { type: String },
     },
     { timestamps: true }
 );
 
-export const Contact = models.Contact || mongoose.model<IContact>('Contact', ContactSchema);
+ContactSchema.index({ assignedTo: 1 });
+
+export const Contact = models.Contact ?? mongoose.model<IContact>('Contact', ContactSchema);

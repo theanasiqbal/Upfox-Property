@@ -3,14 +3,16 @@ import { connectDB } from '@/lib/db/mongoose';
 import { Partner } from '@/lib/db/models/Partner';
 import { getUserFromCookies } from '@/lib/jwt';
 
-async function isAdmin() {
-    const payload = await getUserFromCookies();
-    return payload?.role === 'admin';
+async function getPayload() {
+    return getUserFromCookies();
 }
 
 export async function GET(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const payload = await getPayload();
+        if (!payload || (payload.role !== 'admin' && payload.role !== 'subadmin')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
         await connectDB();
         const { searchParams } = new URL(req.url);
@@ -28,6 +30,12 @@ export async function GET(req: NextRequest) {
         const dateTo = searchParams.get('dateTo');
 
         const filter: Record<string, unknown> = {};
+
+        // Subadmin sees only their assigned items
+        if (payload.role === 'subadmin') {
+            filter.assignedTo = payload.userId;
+        }
+
         if (status && status !== 'all') filter.status = status;
         if (partnershipType && partnershipType !== 'all') filter.partnershipType = partnershipType;
         if (dateFrom || dateTo) {
@@ -68,19 +76,36 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-        const body = await req.json();
-        const { id, status } = body;
-
-        if (!id || !['pending', 'contacted', 'closed'].includes(status)) {
-            return NextResponse.json({ error: 'Invalid ID or status' }, { status: 400 });
+        const payload = await getPayload();
+        if (!payload || (payload.role !== 'admin' && payload.role !== 'subadmin')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        await connectDB();
-        const partner = await Partner.findByIdAndUpdate(id, { status }, { new: true });
+        const body = await req.json();
+        const { id, status, assignedTo, assignedName } = body;
 
-        if (!partner) return NextResponse.json({ error: 'Partner request not found' }, { status: 404 });
+        if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+
+        await connectDB();
+
+        // Assignment — admin only
+        if (assignedTo !== undefined) {
+            if (payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+            const update: Record<string, unknown> = assignedTo
+                ? { assignedTo, assignedName, status: 'assigned' }
+                : { $unset: { assignedTo: '', assignedName: '' }, status: 'pending' };
+            const partner = await Partner.findByIdAndUpdate(id, update, { new: true });
+            if (!partner) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+            return NextResponse.json({ success: true, partner });
+        }
+
+        const validStatuses = ['pending', 'contacted', 'assigned', 'closed'];
+        if (!status || !validStatuses.includes(status)) {
+            return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+        }
+
+        const partner = await Partner.findByIdAndUpdate(id, { status }, { new: true });
+        if (!partner) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
         return NextResponse.json({ success: true, partner });
     } catch (err) {
@@ -89,13 +114,50 @@ export async function PATCH(req: NextRequest) {
     }
 }
 
+export async function POST(req: NextRequest) {
+    try {
+        const payload = await getPayload();
+        if (!payload || payload.role !== 'admin') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const body = await req.json();
+        const { fullName, email, phone, partnershipType, organization, message, assignedTo, assignedName } = body;
+
+        if (!fullName || !email || !phone || !partnershipType || !message) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        await connectDB();
+
+        const newPartner = await Partner.create({
+            fullName,
+            email,
+            phone,
+            partnershipType,
+            organization: organization || undefined,
+            message,
+            status: assignedTo ? 'assigned' : 'pending',
+            assignedTo: assignedTo || undefined,
+            assignedName: assignedName || undefined,
+        });
+
+        return NextResponse.json({ success: true, partner: newPartner }, { status: 201 });
+    } catch (err) {
+        console.error('[POST /api/admin/partners]', err);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}
+
 export async function DELETE(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const payload = await getPayload();
+        if (!payload || (payload.role !== 'admin' && payload.role !== 'subadmin')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
         const { searchParams } = new URL(req.url);
         const id = searchParams.get('id');
-
         if (!id) return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
 
         await connectDB();

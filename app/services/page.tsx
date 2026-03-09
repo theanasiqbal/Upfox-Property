@@ -1,13 +1,23 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { WhatsAppButton } from '@/components/whatsapp-button';
 import { StickyMobileCTA } from '@/components/sticky-mobile-cta';
-import { SERVICES, CONTACT } from '@/lib/constants';
-import { Building2, Laptop, DoorOpen, Home as HomeIcon, Store, Globe, Settings, ArrowRight, Phone, MessageCircle, CheckCircle } from 'lucide-react';
+import { CONTACT } from '@/lib/constants';
+import { Building2, Laptop, DoorOpen, Home as HomeIcon, Store, Globe, Settings, ArrowRight, Phone, MessageCircle, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+
+interface Service {
+    _id: string;
+    identifier: string;
+    title: string;
+    shortDescription: string;
+    description: string;
+    features: string[];
+    image: string | null;
+}
 
 const serviceIcons: Record<string, React.ElementType> = {
     'office-space': Building2,
@@ -20,6 +30,26 @@ const serviceIcons: Record<string, React.ElementType> = {
 };
 
 export default function ServicesPage() {
+    const [services, setServices] = useState<Service[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchServices = async () => {
+            try {
+                const res = await fetch('/api/services');
+                if (res.ok) {
+                    const data = await res.json();
+                    setServices(data.services);
+                }
+            } catch (error) {
+                console.error('Failed to fetch services:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchServices();
+    }, []);
     return (
         <div className="min-h-screen bg-white dark:bg-navy-800">
             <Suspense fallback={null}>
@@ -42,52 +72,75 @@ export default function ServicesPage() {
             {/* Services Detail */}
             <section className="py-20 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto space-y-16">
-                    {SERVICES.map((service, idx) => {
-                        const Icon = serviceIcons[service.id] || Building2;
-                        const isEven = idx % 2 === 0;
-
-                        return (
-                            <div
-                                key={service.id}
-                                className={`flex flex-col lg:flex-row items-center gap-12 ${!isEven ? 'lg:flex-row-reverse' : ''}`}
-                            >
-                                {/* Icon / Visual */}
-                                <div className="flex-shrink-0 w-full lg:w-2/5">
-                                    <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-12 flex items-center justify-center border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
-                                        <div className="w-24 h-24 bg-accent-purple/10 dark:bg-accent-purple/20 rounded-3xl flex items-center justify-center">
-                                            <Icon className="w-12 h-12 text-accent-purple" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Content */}
-                                <div className="flex-1">
-                                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 font-heading">
-                                        {service.title}
-                                    </h2>
-                                    <p className="text-sm text-accent-purple font-semibold mb-4">{service.shortDescription}</p>
-                                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                                        {service.description}
-                                    </p>
-                                    <ul className="space-y-3 mb-6">
-                                        {service.features.map((feature, fIdx) => (
-                                            <li key={fIdx} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                                <span className="text-sm">{feature}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <Link
-                                        href="/properties"
-                                        className="inline-flex items-center gap-2 px-6 py-3 btn-gradient font-semibold rounded-full text-sm"
-                                    >
-                                        Browse Properties
-                                        <ArrowRight className="w-4 h-4" />
-                                    </Link>
+                    {isLoading ? (
+                        [...Array(3)].map((_, idx) => (
+                            <div key={idx} className="flex flex-col lg:flex-row items-center gap-12 animate-pulse">
+                                <div className="flex-shrink-0 w-full lg:w-2/5 h-64 bg-gray-100 dark:bg-white/5 rounded-3xl" />
+                                <div className="flex-1 space-y-4 w-full">
+                                    <div className="h-8 bg-gray-100 dark:bg-white/5 rounded w-3/4" />
+                                    <div className="h-4 bg-gray-100 dark:bg-white/5 rounded w-1/2" />
+                                    <div className="h-24 bg-gray-100 dark:bg-white/5 rounded w-full" />
                                 </div>
                             </div>
-                        );
-                    })}
+                        ))
+                    ) : services.length === 0 ? (
+                        <div className="text-center text-gray-500 py-12">No services available.</div>
+                    ) : (
+                        services.map((service, idx) => {
+                            const isEven = idx % 2 === 0;
+
+                            return (
+                                <div
+                                    key={service._id}
+                                    className={`flex flex-col lg:flex-row items-center gap-12 ${!isEven ? 'lg:flex-row-reverse' : ''}`}
+                                >
+                                    {/* Visual / Image */}
+                                    <div className="flex-shrink-0 w-full lg:w-2/5">
+                                        <div className="bg-gray-50 dark:bg-white/5 rounded-3xl overflow-hidden border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none aspect-[4/3] flex items-center justify-center relative">
+                                            {service.image ? (
+                                                <img
+                                                    src={service.image}
+                                                    alt={service.title}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center text-gray-400">
+                                                    <ImageIcon className="w-16 h-16 mb-2 opacity-50" />
+                                                    <span className="text-sm">Image Pending</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex-1">
+                                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 font-heading">
+                                            {service.title}
+                                        </h2>
+                                        <p className="text-sm text-accent-purple font-semibold mb-4">{service.shortDescription}</p>
+                                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
+                                            {service.description}
+                                        </p>
+                                        <ul className="space-y-3 mb-6">
+                                            {service.features.map((feature, fIdx) => (
+                                                <li key={fIdx} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                                                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                                    <span className="text-sm">{feature}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <Link
+                                            href="/properties"
+                                            className="inline-flex items-center gap-2 px-6 py-3 btn-gradient font-semibold rounded-full text-sm"
+                                        >
+                                            Browse Properties
+                                            <ArrowRight className="w-4 h-4" />
+                                        </Link>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
             </section>
 

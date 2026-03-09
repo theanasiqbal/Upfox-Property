@@ -7,7 +7,7 @@ import { getUserFromCookies } from '@/lib/jwt';
 export async function GET() {
     try {
         const payload = await getUserFromCookies();
-        if (!payload || payload.role !== 'admin') {
+        if (!payload || (payload.role !== 'admin' && payload.role !== 'subadmin')) {
             return NextResponse.json({ error: 'Forbidden — admin only' }, { status: 403 });
         }
 

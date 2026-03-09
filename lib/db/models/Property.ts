@@ -13,6 +13,8 @@ export interface IProperty {
     zipcode: string;
     condition: string;
     area: number;
+    length?: number;
+    breadth?: number;
     bdaApproved: boolean;
     amenities: string[];
     images: string[]; // Cloudinary URLs
@@ -42,6 +44,8 @@ const PropertySchema = new Schema<IProperty>(
         zipcode: { type: String, required: true },
         condition: { type: String, required: true },
         area: { type: Number, required: true },
+        length: { type: Number },
+        breadth: { type: Number },
         bdaApproved: { type: Boolean, default: false },
         amenities: [{ type: String }],
         images: [{ type: String }],

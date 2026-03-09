@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/jwt';
 const PROTECTED_ADMIN = ['/admin'];
 const PROTECTED_SELLER = ['/dashboard/seller'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isAdminRoute = PROTECTED_ADMIN.some((r) => pathname.startsWith(r));
@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
     const payload = await verifyToken(token);
 
     // Admin route — must be admin role
-    if (isAdminRoute && payload.role !== 'admin') {
+    if (isAdminRoute && payload.role !== 'admin' && payload.role !== 'subadmin') {
       // Redirect sellers to their dashboard, buyers to home
       const fallback = payload.role === 'seller' ? '/dashboard/seller' : '/';
       return NextResponse.redirect(new URL(fallback, request.url));

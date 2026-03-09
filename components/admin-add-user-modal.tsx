@@ -17,7 +17,7 @@ export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModa
         email: '',
         password: '',
         phone: '',
-        role: 'admin',
+        role: 'subadmin' as 'admin' | 'subadmin' | 'user',
     });
 
     if (!open) return null;
@@ -45,7 +45,7 @@ export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModa
             onSuccess(data.user);
             onClose();
             // Reset form
-            setFormData({ name: '', email: '', password: '', phone: '', role: 'admin' });
+            setFormData({ name: '', email: '', password: '', phone: '', role: 'subadmin' });
         } catch (error: any) {
             toast.error(error.message);
         } finally {
@@ -153,23 +153,33 @@ export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModa
                         {/* Role selection */}
                         <div>
                             <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Account Role</label>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-3 gap-3">
                                 <button
                                     type="button"
                                     onClick={() => setFormData({ ...formData, role: 'user' })}
                                     className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${formData.role === 'user'
-                                        ? 'bg-accent-purple/10 border-accent-purple text-accent-purple dark:text-accent-purple-light'
-                                        : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-accent-purple/50'
+                                            ? 'bg-accent-purple/10 border-accent-purple text-accent-purple dark:text-accent-purple-light'
+                                            : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-accent-purple/50'
                                         }`}
                                 >
                                     Regular User
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => setFormData({ ...formData, role: 'subadmin' })}
+                                    className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${formData.role === 'subadmin'
+                                            ? 'bg-blue-100 border-blue-400 text-blue-800 dark:bg-blue-500/20 dark:border-blue-500/50 dark:text-blue-400'
+                                            : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-blue-500/50'
+                                        }`}
+                                >
+                                    Sub-Admin
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => setFormData({ ...formData, role: 'admin' })}
                                     className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${formData.role === 'admin'
-                                        ? 'bg-amber-100 border-amber-400 text-amber-800 dark:bg-amber-500/20 dark:border-amber-500/50 dark:text-amber-400'
-                                        : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-amber-500/50'
+                                            ? 'bg-amber-100 border-amber-400 text-amber-800 dark:bg-amber-500/20 dark:border-amber-500/50 dark:text-amber-400'
+                                            : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-amber-500/50'
                                         }`}
                                 >
                                     Administrator

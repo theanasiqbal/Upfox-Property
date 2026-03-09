@@ -3,14 +3,16 @@ import { connectDB } from '@/lib/db/mongoose';
 import { Contact } from '@/lib/db/models/Contact';
 import { getUserFromCookies } from '@/lib/jwt';
 
-async function isAdmin() {
-    const payload = await getUserFromCookies();
-    return payload?.role === 'admin';
+async function getPayload() {
+    return getUserFromCookies();
 }
 
 export async function GET(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const payload = await getPayload();
+        if (!payload || (payload.role !== 'admin' && payload.role !== 'subadmin')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
         await connectDB();
         const { searchParams } = new URL(req.url);
@@ -28,6 +30,12 @@ export async function GET(req: NextRequest) {
         const dateTo = searchParams.get('dateTo');
 
         const filter: Record<string, unknown> = {};
+
+        // Subadmin sees only their assigned items
+        if (payload.role === 'subadmin') {
+            filter.assignedTo = payload.userId;
+        }
+
         if (status && status !== 'all') filter.status = status;
         if (inquiryType && inquiryType !== 'all') filter.inquiryType = inquiryType;
         if (dateFrom || dateTo) {
@@ -68,19 +76,36 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-        const body = await req.json();
-        const { id, status } = body;
-
-        if (!id || !['new', 'contacted', 'closed'].includes(status)) {
-            return NextResponse.json({ error: 'Invalid ID or status' }, { status: 400 });
+        const payload = await getPayload();
+        if (!payload || (payload.role !== 'admin' && payload.role !== 'subadmin')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        await connectDB();
-        const contact = await Contact.findByIdAndUpdate(id, { status }, { new: true });
+        const body = await req.json();
+        const { id, status, assignedTo, assignedName } = body;
 
-        if (!contact) return NextResponse.json({ error: 'Contact not found' }, { status: 404 });
+        if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+
+        await connectDB();
+
+        // Assignment — admin only
+        if (assignedTo !== undefined) {
+            if (payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+            const update: Record<string, unknown> = assignedTo
+                ? { assignedTo, assignedName, status: 'assigned' }
+                : { $unset: { assignedTo: '', assignedName: '' }, status: 'new' };
+            const contact = await Contact.findByIdAndUpdate(id, update, { new: true });
+            if (!contact) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+            return NextResponse.json({ success: true, contact });
+        }
+
+        const validStatuses = ['new', 'contacted', 'assigned', 'closed'];
+        if (!status || !validStatuses.includes(status)) {
+            return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+        }
+
+        const contact = await Contact.findByIdAndUpdate(id, { status, isRead: true }, { new: true });
+        if (!contact) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
         return NextResponse.json({ success: true, contact });
     } catch (err) {
@@ -89,13 +114,50 @@ export async function PATCH(req: NextRequest) {
     }
 }
 
+export async function POST(req: NextRequest) {
+    try {
+        const payload = await getPayload();
+        if (!payload || payload.role !== 'admin') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const body = await req.json();
+        const { name, email, phone, inquiryType, propertyInterest, message, assignedTo, assignedName } = body;
+
+        if (!name || !email || !phone || !message) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        await connectDB();
+
+        const newContact = await Contact.create({
+            name,
+            email,
+            phone,
+            inquiryType: inquiryType || undefined,
+            propertyInterest: propertyInterest || undefined,
+            message,
+            status: assignedTo ? 'assigned' : 'new',
+            assignedTo: assignedTo || undefined,
+            assignedName: assignedName || undefined,
+        });
+
+        return NextResponse.json({ success: true, contact: newContact }, { status: 201 });
+    } catch (err) {
+        console.error('[POST /api/admin/contacts]', err);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}
+
 export async function DELETE(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const payload = await getPayload();
+        if (!payload || (payload.role !== 'admin' && payload.role !== 'subadmin')) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
         const { searchParams } = new URL(req.url);
         const id = searchParams.get('id');
-
         if (!id) return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
 
         await connectDB();

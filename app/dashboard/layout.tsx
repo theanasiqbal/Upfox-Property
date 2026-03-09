@@ -12,8 +12,14 @@ import {
   Plus,
   ArrowLeft,
 } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 const userNavItems = [
+  {
+    label: 'Back to Website',
+    href: '/',
+    icon: <ArrowLeft className="w-5 h-5" />,
+  },
   {
     label: 'Profile',
     href: '/dashboard/user',
@@ -35,19 +41,15 @@ const userNavItems = [
     href: '/dashboard/user/settings',
     icon: <Settings className="w-5 h-5" />,
   },
-  {
-    label: 'Back to Home',
-    href: '/',
-    icon: <ArrowLeft className="w-5 h-5" />,
-  },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const { currentUser } = useAuth();
   return (
     // <ProtectedRoute requiredRole="user">
     <div className="flex h-screen bg-gray-50 dark:bg-navy-800">
       {/* Sidebar */}
-      <SidebarNav items={userNavItems} title="User Profile" />
+      <SidebarNav items={userNavItems} title={currentUser?.name ? `Hey, ${currentUser.name}` : "User Profile"} />
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto md:ml-0">

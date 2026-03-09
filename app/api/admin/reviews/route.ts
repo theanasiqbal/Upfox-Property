@@ -5,7 +5,7 @@ import { getUserFromCookies } from '@/lib/jwt';
 
 async function isAdmin() {
     const payload = await getUserFromCookies();
-    return payload?.role === 'admin';
+    return payload?.role === 'admin' || payload?.role === 'subadmin';
 }
 
 export async function GET(req: NextRequest) {

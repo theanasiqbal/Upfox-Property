@@ -9,9 +9,14 @@ async function isAdmin() {
     return payload?.role === 'admin';
 }
 
+async function isAdminOrSubadmin() {
+    const payload = await getUserFromCookies();
+    return payload?.role === 'admin' || payload?.role === 'subadmin';
+}
+
 export async function GET(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden — admin only' }, { status: 403 });
+        if (!(await isAdminOrSubadmin())) return NextResponse.json({ error: 'Forbidden — admin/subadmin only' }, { status: 403 });
 
         await connectDB();
         const { searchParams } = new URL(req.url);
@@ -69,7 +74,7 @@ export async function PATCH(req: NextRequest) {
         const body = await req.json();
         const { id, role } = body;
 
-        if (!id || !['admin', 'user'].includes(role)) {
+        if (!id || !['admin', 'subadmin', 'user'].includes(role)) {
             return NextResponse.json({ error: 'Invalid ID or role' }, { status: 400 });
         }
 
@@ -117,7 +122,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
         }
 
-        const userRole = role === 'user' ? 'user' : 'admin';
+        const userRole = ['admin', 'subadmin', 'user'].includes(role) ? role : 'admin';
 
         await connectDB();
         const existing = await User.findOne({ email: email.toLowerCase() });

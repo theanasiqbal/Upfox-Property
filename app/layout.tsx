@@ -26,7 +26,7 @@ const openSans = Open_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Upfoxx Floors – Commercial Real Estate | Managed Workspaces | Property Management',
+    default: 'Upfoxx Floors – Commercial & Residential Real Estate | Managed Workspaces | Property Management',
     template: '%s | Upfoxx Floors',
   },
   description: 'Find premium office spaces, co-working hubs, meeting rooms, rental homes & commercial properties in prime locations. Verified listings, transparent pricing, admin-approved properties.',

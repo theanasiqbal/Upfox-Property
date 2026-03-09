@@ -5,7 +5,7 @@ import { getUserFromCookies } from '@/lib/jwt';
 
 async function isAdmin() {
     const payload = await getUserFromCookies();
-    return payload?.role === 'admin';
+    return payload?.role === 'admin' || payload?.role === 'subadmin';
 }
 
 export async function GET(req: NextRequest) {
@@ -15,9 +15,10 @@ export async function GET(req: NextRequest) {
         await connectDB();
         const { searchParams } = new URL(req.url);
 
+        const isCompact = searchParams.get('compact') === 'true';
         const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
-        const limit = Math.min(50, parseInt(searchParams.get('limit') || '15'));
-        const skip = (page - 1) * limit;
+        const limit = isCompact ? 0 : Math.min(50, parseInt(searchParams.get('limit') || '15'));
+        const skip = limit === 0 ? 0 : (page - 1) * limit;
 
         const status = searchParams.get('status');
         const search = searchParams.get('search');
@@ -46,12 +47,12 @@ export async function GET(req: NextRequest) {
         };
         const sortField = allowedSortFields[sortBy] || 'listingDate';
 
+        const query = Property.find(filter).sort({ [sortField]: sortOrder });
+        if (isCompact) query.select('_id title city location');
+        if (limit > 0) query.skip(skip).limit(limit);
+
         const [properties, total] = await Promise.all([
-            Property.find(filter)
-                .sort({ [sortField]: sortOrder })
-                .skip(skip)
-                .limit(limit)
-                .lean(),
+            query.lean(),
             Property.countDocuments(filter),
         ]);
 

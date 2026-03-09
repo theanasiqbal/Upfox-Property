@@ -9,7 +9,9 @@ export interface IPartner {
     partnershipType: string;
     message: string;
     fileName?: string;
-    status: 'pending' | 'contacted' | 'closed';
+    status: 'pending' | 'contacted' | 'assigned' | 'closed';
+    assignedTo?: mongoose.Types.ObjectId;
+    assignedName?: string;
     createdAt: Date;
 }
 
@@ -22,9 +24,13 @@ const PartnerSchema = new Schema<IPartner>(
         partnershipType: { type: String, required: true },
         message: { type: String, required: true },
         fileName: { type: String },
-        status: { type: String, enum: ['pending', 'contacted', 'closed'], default: 'pending' },
+        status: { type: String, enum: ['pending', 'contacted', 'assigned', 'closed'], default: 'pending' },
+        assignedTo: { type: Schema.Types.ObjectId, ref: 'User' },
+        assignedName: { type: String },
     },
     { timestamps: true }
 );
 
-export const Partner = models.Partner || mongoose.model<IPartner>('Partner', PartnerSchema);
+PartnerSchema.index({ assignedTo: 1 });
+
+export const Partner = models.Partner ?? mongoose.model<IPartner>('Partner', PartnerSchema);

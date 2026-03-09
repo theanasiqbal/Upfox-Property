@@ -41,6 +41,23 @@ export function PropertyDetailClient({
     ? property.images
     : ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop'];
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: property.title,
+          url: url
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Image Gallery */}
@@ -61,7 +78,7 @@ export function PropertyDetailClient({
           >
             <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} /> */}
           {/* </button> */}
-          <button className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 flex items-center justify-center transition-all">
+          <button onClick={handleShare} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 flex items-center justify-center transition-all">
             <Share2 className="w-5 h-5" />
           </button>
         </div>
@@ -130,8 +147,8 @@ export function PropertyDetailClient({
             <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-100 dark:border-white/10">
               {[
                 { icon: Building2, label: 'Condition', value: property.condition || 'N/A' },
-                { icon: ShieldCheck, label: 'BDA Approved', value: property.bdaApproved ? 'Yes' : 'No' },
-                { icon: Maximize, label: 'Area', value: `${property.area} sqft` },
+                { icon: ShieldCheck, label: 'BDA/RERA Approved', value: property.bdaApproved ? 'Yes' : 'No' },
+                { icon: Maximize, label: 'Area', value: property.length && property.breadth ? `${property.area} sqft (${property.length}x${property.breadth} ft)` : `${property.area} sqft` },
               ].map((spec) => (
                 <div key={spec.label} className="text-center p-4 bg-gray-50 dark:bg-white/5 rounded-xl">
                   <spec.icon className="w-6 h-6 text-accent-purple mx-auto mb-2" />
@@ -179,6 +196,12 @@ export function PropertyDetailClient({
                 <Maximize className="w-5 h-5 text-accent-purple flex-shrink-0" />
                 <span className="text-sm">Area: {property.area} sqft</span>
               </div>
+              {property.length && property.breadth && (
+                <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                  <Maximize className="w-5 h-5 text-accent-purple flex-shrink-0" />
+                  <span className="text-sm">Dimensions: {property.length} x {property.breadth} ft</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

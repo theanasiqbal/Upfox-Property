@@ -159,7 +159,7 @@ export const SERVICES = [
 // Contact Info
 export const CONTACT = {
   phone: '7534835937',
-  email: 'info@upfoxxmedia.com',
+  email: 'support@upfoxxfloors.co.in',
   address: 'Upfoxx Floors, Civil Lines, Bareilly, Uttar Pradesh',
   whatsappUrl: 'https://wa.me/917534835937',
 };

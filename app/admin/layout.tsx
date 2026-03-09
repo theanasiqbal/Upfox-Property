@@ -3,13 +3,24 @@
 import { ReactNode } from 'react';
 import { ProtectedRoute } from '@/components/protected-route';
 import { SidebarNav } from '@/components/sidebar-nav';
-import { LayoutGrid, Home, CheckCircle, Users, MessageSquare, Handshake, Star, Mail } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
+import { LayoutGrid, Home, CheckCircle, Users, MessageSquare, Handshake, Star, Mail, ArrowLeft, Briefcase } from 'lucide-react';
 
 const adminNavItems = [
+  {
+    label: 'Back to Website',
+    href: '/',
+    icon: <ArrowLeft className="w-5 h-5" />,
+  },
   {
     label: 'Dashboard',
     href: '/admin',
     icon: <LayoutGrid className="w-5 h-5" />,
+  },
+  {
+    label: 'Services',
+    href: '/admin/services',
+    icon: <Briefcase className="w-5 h-5" />,
   },
   {
     label: 'Properties',
@@ -42,6 +53,11 @@ const adminNavItems = [
     icon: <Handshake className="w-5 h-5" />,
   },
   {
+    label: 'Job Applications',
+    href: '/admin/join-us',
+    icon: <Briefcase className="w-5 h-5" />,
+  },
+  {
     label: 'Testimonials',
     href: '/admin/testimonials',
     icon: <Star className="w-5 h-5" />,
@@ -49,11 +65,12 @@ const adminNavItems = [
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
+  const { currentUser } = useAuth();
   return (
     // <ProtectedRoute requiredRole="admin">
     <div className="flex h-screen bg-gray-50 dark:bg-navy-800">
       {/* Sidebar */}
-      <SidebarNav items={adminNavItems} title="Admin Panel" />
+      <SidebarNav items={adminNavItems} title={currentUser?.name ? `Hey, ${currentUser.name}` : "Admin Panel"} />
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto md:ml-0">

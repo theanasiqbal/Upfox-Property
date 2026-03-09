@@ -95,7 +95,7 @@ export function AdminPropertyModal({ property, onClose, onAction }: AdminPropert
                                     { label: 'Listing', value: property.listingType },
                                     { label: 'Condition', value: property.condition },
                                     { label: 'Area', value: `${property.area} sq ft` },
-                                    { label: 'BDA Approved', value: property.bdaApproved ? 'Yes' : 'No' },
+                                    { label: 'BDA/RERA Approved', value: property.bdaApproved ? 'Yes' : 'No' },
                                     { label: 'Availability', value: property.availability || 'Available' },
                                     { label: 'Submitted', value: new Date(property.listingDate).toLocaleDateString() },
                                 ].map(({ label, value }) => (

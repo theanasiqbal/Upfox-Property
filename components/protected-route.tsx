@@ -24,10 +24,10 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
 
     if (requiredRole && currentUser.role !== requiredRole) {
       // Redirect based on user role
-      if (currentUser.role === 'admin') {
+      if (currentUser.role === 'admin' || currentUser.role === 'subadmin') {
         router.push('/admin');
       } else {
-        router.push('/dashboard/seller');
+        router.push('/dashboard/user');
       }
       return;
     }

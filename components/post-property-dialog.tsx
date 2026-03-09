@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
@@ -25,6 +25,8 @@ interface PropertyFormData {
     condition: string;
     bdaApproved: boolean;
     area: number;
+    length?: number;
+    breadth?: number;
     price: number;
     selectedAmenities: string[];
     address: string;
@@ -70,7 +72,7 @@ export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogPro
 
     const STEP_FIELDS = [
         ['title', 'description', 'propertyType', 'listingType'],
-        ['condition', 'area', 'price'],
+        ['condition', 'area', 'price', 'length', 'breadth'],
         ['address', 'city', 'state', 'zipcode'],
         ['images']
     ] as const;
@@ -88,6 +90,20 @@ export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogPro
     };
 
     const formData = watch();
+
+    const prevListingType = useRef(formData.listingType);
+    useEffect(() => {
+        if (formData.listingType === 'rent' && prevListingType.current !== 'rent') {
+            setValue('price', 1000, { shouldValidate: true });
+        }
+        prevListingType.current = formData.listingType;
+    }, [formData.listingType, setValue]);
+
+    useEffect(() => {
+        if (formData.length && formData.breadth) {
+            setValue('area', formData.length * formData.breadth, { shouldValidate: true });
+        }
+    }, [formData.length, formData.breadth, setValue]);
 
     const handleFormSubmit = async () => {
         setIsSubmitting(true);
@@ -278,7 +294,7 @@ export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogPro
                                                     {...register('bdaApproved')}
                                                     className="w-5 h-5 rounded border-gray-300 text-accent-purple focus:ring-accent-purple"
                                                 />
-                                                <span className="text-sm font-medium text-gray-900 dark:text-white">BDA Approved Property</span>
+                                                <span className="text-sm font-medium text-gray-900 dark:text-white">BDA/RERA Approved Property</span>
                                             </label>
                                         </div>
                                     </div>
@@ -307,9 +323,21 @@ export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogPro
                                                     </p>
                                                 )}
                                             </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Area (sqft) <span className="text-red-500">*</span></label>
-                                                <input type="number" min="100" {...register('area', { required: true, min: 100 })} className="w-full px-4 py-2.5 border border-gray-300 dark:border-white/20 rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple" />
+                                            <div className="space-y-4">
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Length <span className="text-gray-400 font-normal text-xs">(optional)</span></label>
+                                                        <input type="number" min="0" {...register('length', { valueAsNumber: true })} className="w-full px-4 py-2.5 border border-gray-300 dark:border-white/20 rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple" placeholder="ft" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Breadth <span className="text-gray-400 font-normal text-xs">(optional)</span></label>
+                                                        <input type="number" min="0" {...register('breadth', { valueAsNumber: true })} className="w-full px-4 py-2.5 border border-gray-300 dark:border-white/20 rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple" placeholder="ft" />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Area (sqft) <span className="text-red-500">*</span></label>
+                                                    <input type="number" min="0" {...register('area', { required: true, min: 0, valueAsNumber: true })} className="w-full px-4 py-2.5 border border-gray-300 dark:border-white/20 rounded-lg bg-white dark:bg-navy-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple" />
+                                                </div>
                                             </div>
                                         </div>
                                         <div>
@@ -432,7 +460,7 @@ export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogPro
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">Condition</p>
                                                 <p className="font-semibold text-gray-900 dark:text-white text-sm">
                                                     {formData.condition || '—'}
-                                                    {formData.bdaApproved && <span className="ml-2 inline-block px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">BDA Approved</span>}
+                                                    {formData.bdaApproved && <span className="ml-2 inline-block px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">BDA/RERA Approved</span>}
                                                 </p>
                                             </div>
                                             <div>

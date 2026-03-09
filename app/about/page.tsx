@@ -60,6 +60,36 @@ export default function AboutPage() {
                 </div>
             </section>
 
+            {/* Founder & CEO */}
+            <section className="py-20 bg-white dark:bg-navy-800 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div className="order-2 lg:order-2">
+                            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 font-heading">
+                                Mohd <span className="gradient-text">Amaan</span>
+                            </h2>
+                            <p className="text-xl font-medium text-accent-purple mb-6 font-heading">Founder & CEO</p>
+                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
+                                Mohd Amaan is the Founder and CEO of Upfoxx Floors and the driving force behind the vision of creating accessible and modern coworking spaces for entrepreneurs and professionals.
+                            </p>
+                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
+                                With a strong entrepreneurial mindset and a passion for business growth, Mohd Amaan founded Upfoxx Floors to help startups, freelancers, and companies access professional office infrastructure without the high costs of traditional office spaces.
+                            </p>
+                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Under his leadership, Upfoxx Floors focuses on innovation, community building, and providing flexible workspace solutions that support modern businesses. His goal is to build a platform where ideas grow, collaborations happen, and businesses succeed.
+                            </p>
+                        </div>
+                        <div className="order-1 lg:order-1 relative">
+                            <img
+                                src="/founder.jpg"
+                                alt="Mohd Amaan - Founder & CEO of Upfoxx Floors"
+                                className="rounded-2xl w-full max-w-md mx-auto object-cover shadow-2xl"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Mission, Vision, Values */}
             <section className="py-20 bg-gray-50 dark:bg-navy-900 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">

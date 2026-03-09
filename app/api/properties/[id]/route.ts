@@ -41,13 +41,13 @@ export async function PATCH(
         if (!property) return NextResponse.json({ error: 'Property not found' }, { status: 404 });
 
         const isOwner = property.sellerId.toString() === payload.userId;
-        if (!isOwner && payload.role !== 'admin') {
+        if (!isOwner && payload.role !== 'admin' && payload.role !== 'subadmin') {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         const body = await req.json();
         // Sellers cannot change status themselves
-        if (payload.role !== 'admin') delete body.status;
+        if (payload.role !== 'admin' && payload.role !== 'subadmin') delete body.status;
 
         const updated = await Property.findByIdAndUpdate(id, body, { new: true });
         return NextResponse.json({ property: updated });
@@ -72,7 +72,7 @@ export async function DELETE(
         if (!property) return NextResponse.json({ error: 'Property not found' }, { status: 404 });
 
         const isOwner = property.sellerId.toString() === payload.userId;
-        if (!isOwner && payload.role !== 'admin') {
+        if (!isOwner && payload.role !== 'admin' && payload.role !== 'subadmin') {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 

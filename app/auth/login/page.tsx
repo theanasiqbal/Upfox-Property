@@ -23,7 +23,7 @@ export default function LoginPage() {
     try {
       setGeneralError('');
       const user = await login(data.email, data.password);
-      if (user.role === 'admin') {
+      if (user.role === 'admin' || user.role === 'subadmin') {
         router.push('/admin');
       } else {
         router.push('/dashboard/user');

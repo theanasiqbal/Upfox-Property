@@ -25,7 +25,7 @@ export async function PATCH(
         if (!inquiry) return NextResponse.json({ error: 'Inquiry not found' }, { status: 404 });
 
         // Verify ownership (seller must own the related property) or admin
-        if (payload.role !== 'admin') {
+        if (payload.role !== 'admin' && payload.role !== 'subadmin') {
             const property = await Property.findById(inquiry.propertyId).lean();
             if (!property || property.sellerId.toString() !== payload.userId) {
                 return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

@@ -65,7 +65,7 @@ export default function TermsPage() {
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-heading mb-3">7. Contact Us</h2>
                             <p className="leading-relaxed">
                                 For any questions regarding these Terms of Service, please contact us at{' '}
-                                <a href="mailto:info@upfoxxmedia.com" className="text-accent-purple hover:underline">info@upfoxxmedia.com</a>.
+                                <a href="mailto:support@upfoxxfloors.co.in" className="text-accent-purple hover:underline">support@upfoxxfloors.co.in</a>.
                             </p>
                         </div>
                     </div>

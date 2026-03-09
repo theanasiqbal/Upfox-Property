@@ -24,6 +24,7 @@ export function Header() {
     { label: 'Properties', href: '/properties', match: (p: string) => p === '/properties' || p.startsWith('/properties/') },
     { label: 'Contact', href: '/contact', match: (p: string) => p === '/contact' },
     { label: 'Partner With Us', href: '/partner', match: (p: string) => p === '/partner' },
+    { label: 'Join Us', href: '/join-us', match: (p: string) => p === '/join-us' },
   ];
 
   const isActive = (item: typeof navItems[0]) => item.match(pathname);
@@ -79,31 +80,40 @@ export function Header() {
 
             {currentUser ? (
               <div className="hidden md:flex items-center gap-4">
-                {currentUser.role === 'admin' ? (
-                  <Link
-                    href="/admin"
-                    className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors"
-                  >
-                    Admin Panel
-                  </Link>
-                ) : (
-                  <>
-                    <Link
-                      href="/dashboard/user"
-                      className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-accent-purple dark:hover:text-accent-purple-light transition-colors"
+                {currentUser.role !== 'admin' && currentUser.role !== 'subadmin' && <PostPropertyDialog />}
+
+                <div className="relative group">
+                  <button className="flex items-center justify-center w-10 h-10 rounded-full bg-accent-purple text-white font-bold text-sm shadow-sm hover:opacity-90 transition-all">
+                    {currentUser.name ? currentUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}
+                  </button>
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-navy-800 rounded-xl shadow-xl border border-gray-100 dark:border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2">
+                    <div className="px-4 py-2 border-b border-gray-100 dark:border-white/10 mb-2">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{currentUser.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{currentUser.email}</p>
+                    </div>
+                    {currentUser.role === 'admin' || currentUser.role === 'subadmin' ? (
+                      <Link
+                        href="/admin"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                      >
+                        Admin Panel
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/dashboard/user"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                      >
+                        Profile
+                      </Link>
+                    )}
+                    <button
+                      onClick={logout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                     >
-                      Profile
-                    </Link>
-                    <PostPropertyDialog />
-                  </>
-                )}
-                <div className="h-4 w-[1px] bg-gray-200 dark:bg-white/10" />
-                <button
-                  onClick={logout}
-                  className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-red-500 transition-colors"
-                >
-                  Logout
-                </button>
+                      Logout
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="hidden md:flex items-center gap-3">
@@ -146,7 +156,7 @@ export function Header() {
             <div className="border-t border-gray-200 dark:border-white/10 pt-3 mt-3 space-y-1">
               {currentUser ? (
                 <>
-                  {currentUser.role === 'admin' ? (
+                  {currentUser.role === 'admin' || currentUser.role === 'subadmin' ? (
                     <Link
                       href="/admin"
                       className="block px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl text-sm font-medium"
