@@ -19,7 +19,8 @@ import {
   MessageCircle,
   CheckCircle,
   ShieldCheck,
-  Building2
+  Building2,
+  PlayCircle
 } from 'lucide-react';
 
 interface PropertyDetailClientProps {
@@ -35,11 +36,16 @@ export function PropertyDetailClient({
   priceDisplay,
 }: PropertyDetailClientProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  // const [isSaved, setIsSaved] = useState(false);
-
-  const images = property.images?.length
+  const fallbackImages = property.images && property.images.length > 0
     ? property.images
     : ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop'];
+
+  // Create a combined media array. If video exists, it becomes the first item (cover).
+  const mediaItems = property.video
+    ? [{ type: 'video', url: property.video }, ...fallbackImages.map((url: string) => ({ type: 'image', url }))]
+    : fallbackImages.map((url: string) => ({ type: 'image', url }));
+
+  const currentMedia = mediaItems[currentImageIndex] || mediaItems[0];
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -61,13 +67,25 @@ export function PropertyDetailClient({
   return (
     <div className="space-y-8">
       {/* Image Gallery */}
-      <div className="relative rounded-2xl overflow-hidden h-[500px] bg-gray-100 dark:bg-navy-700 group">
-        <img
-          src={images[currentImageIndex]}
-          alt={`${property.title} - Image ${currentImageIndex + 1}`}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+      <div className="relative rounded-2xl overflow-hidden h-[500px] bg-black group">
+        {currentMedia.type === 'video' ? (
+          <video
+            src={currentMedia.url}
+            className="w-full h-full object-contain"
+            autoPlay
+            loop
+            muted
+            playsInline
+            controls
+          />
+        ) : (
+          <img
+            src={currentMedia.url}
+            alt={`${property.title} - Media ${currentImageIndex + 1}`}
+            className="w-full h-full object-cover"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
 
         {/* Action buttons */}
         <div className="absolute top-4 right-4 flex gap-2">
@@ -84,16 +102,16 @@ export function PropertyDetailClient({
         </div>
 
         {/* Navigation */}
-        {images.length > 1 && (
+        {mediaItems.length > 1 && (
           <>
             <button
-              onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
+              onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1))}
               className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 flex items-center justify-center transition-all"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+              onClick={() => setCurrentImageIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1))}
               className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 flex items-center justify-center transition-all"
             >
               <ChevronRight className="w-5 h-5" />
@@ -103,13 +121,24 @@ export function PropertyDetailClient({
 
         {/* Thumbnail strip */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          {images.map((_, idx) => (
+          {mediaItems.map((item: any, idx: number) => (
             <button
               key={idx}
               onClick={() => setCurrentImageIndex(idx)}
-              className={`w-2.5 h-2.5 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white w-8' : 'bg-white/50 hover:bg-white/80'
+              className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${idx === currentImageIndex
+                ? 'border-accent-purple shadow-lg scale-110'
+                : 'border-white/20 hover:border-white/60 opacity-60 hover:opacity-100'
                 }`}
-            />
+            >
+              {item.type === 'video' ? (
+                <div className="w-full h-full bg-black relative flex items-center justify-center">
+                  <video src={item.url} className="w-full h-full object-cover opacity-50" />
+                  <PlayCircle className="w-5 h-5 text-white absolute" />
+                </div>
+              ) : (
+                <img src={item.url} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
+              )}
+            </button>
           ))}
         </div>
       </div>

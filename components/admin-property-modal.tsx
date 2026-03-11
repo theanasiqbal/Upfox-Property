@@ -127,7 +127,7 @@ export function AdminPropertyModal({ property, onClose, onAction }: AdminPropert
                         <div className="space-y-5">
                             <div>
                                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Images</h3>
-                                {property.images?.length > 0 ? (
+                                {property.images?.length > 0 && !property.video ? (
                                     <div className="grid grid-cols-2 gap-2">
                                         {property.images.slice(0, 4).map((img, i) => (
                                             <div key={i} className={`relative rounded-xl overflow-hidden ${i === 0 ? 'col-span-2 aspect-video' : 'aspect-square'}`}>
@@ -135,9 +135,17 @@ export function AdminPropertyModal({ property, onClose, onAction }: AdminPropert
                                             </div>
                                         ))}
                                     </div>
+                                ) : property.video ? (
+                                    <div className="aspect-video bg-black rounded-xl overflow-hidden shadow-inner flex items-center justify-center">
+                                        <video
+                                            src={property.video}
+                                            controls
+                                            className="w-full h-full object-contain"
+                                        />
+                                    </div>
                                 ) : (
                                     <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center text-gray-400 text-sm">
-                                        No images attached
+                                        No images or video attached
                                     </div>
                                 )}
                             </div>

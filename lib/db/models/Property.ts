@@ -18,6 +18,7 @@ export interface IProperty {
     bdaApproved: boolean;
     amenities: string[];
     images: string[]; // Cloudinary URLs
+    video?: string; // Cloudinary URL
     sellerId: mongoose.Types.ObjectId;
     ownerName: string;
     ownerPhone: string;
@@ -49,6 +50,7 @@ const PropertySchema = new Schema<IProperty>(
         bdaApproved: { type: Boolean, default: false },
         amenities: [{ type: String }],
         images: [{ type: String }],
+        video: { type: String },
         sellerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         ownerName: { type: String, required: true },
         ownerPhone: { type: String, required: true },

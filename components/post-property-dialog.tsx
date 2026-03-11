@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { MultiStepForm } from '@/components/multi-step-form';
 import { ImageUpload } from '@/components/image-upload';
+import { VideoUpload } from '@/components/video-upload';
 import { PROPERTY_TYPES, LISTING_TYPES, AMENITIES, CITIES, CONDITIONS, INDIA_STATES } from '@/lib/constants';
 import {
     Dialog,
@@ -34,6 +35,7 @@ interface PropertyFormData {
     state: string;
     zipcode: string;
     images: any[];
+    video: string;
 }
 
 const steps = [
@@ -67,6 +69,7 @@ export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogPro
             price: 200000,
             selectedAmenities: [],
             images: [],
+            video: '',
         },
     });
 
@@ -117,6 +120,8 @@ export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogPro
                 condition: formData.condition,
                 bdaApproved: formData.bdaApproved,
                 area: formData.area,
+                length: formData.length,
+                breadth: formData.breadth,
                 price: formData.price,
                 amenities: formData.selectedAmenities,
                 location: formData.address,
@@ -124,6 +129,7 @@ export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogPro
                 state: formData.state,
                 zipcode: formData.zipcode,
                 images: formData.images as string[], // Cloudinary URLs from ImageUpload
+                video: formData.video,
             };
             const res = await fetch('/api/properties', {
                 method: 'POST',
@@ -440,6 +446,14 @@ export function PostPropertyDialog({ trigger, onSuccess }: PostPropertyDialogPro
                                         />
                                         <input type="hidden" {...register('images', { validate: val => val && val.length > 0 || 'At least one image is required' })} />
                                         {errors.images && <p className="text-red-600 text-sm mt-1">{errors.images.message}</p>}
+
+                                        <div className="pt-6 border-t border-gray-100 dark:border-white/10 mt-8">
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cover Video <span className="text-gray-400 text-sm font-normal">(Optional)</span></h3>
+                                            <VideoUpload
+                                                onVideoChange={(url) => setValue('video', url)}
+                                                existingVideo={formData.video}
+                                            />
+                                        </div>
                                     </div>
                                 )}
 

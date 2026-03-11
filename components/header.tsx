@@ -22,6 +22,7 @@ export function Header() {
     { label: 'About Us', href: '/about', match: (p: string) => p === '/about' },
     { label: 'Services', href: '/services', match: (p: string) => p === '/services' },
     { label: 'Properties', href: '/properties', match: (p: string) => p === '/properties' || p.startsWith('/properties/') },
+    { label: 'Gallery', href: '/gallery', match: (p: string) => p === '/gallery' },
     { label: 'Contact', href: '/contact', match: (p: string) => p === '/contact' },
     { label: 'Partner With Us', href: '/partner', match: (p: string) => p === '/partner' },
     { label: 'Join Us', href: '/join-us', match: (p: string) => p === '/join-us' },

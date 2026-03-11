@@ -40,6 +40,7 @@ export interface Property {
   bdaApproved: boolean;
   amenities: Amenity[];
   images: string[];
+  video?: string;
   listingDate: string;
   viewCount: number;
   sellerId: string;

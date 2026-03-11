@@ -67,7 +67,7 @@ export function SidebarNav({ items, title = 'Menu' }: SidebarNavProps) {
           </div>
 
           {/* Navigation Items */}
-          <nav className="flex-1 px-4 py-6 space-y-1">
+          <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
             {items.map((item) => {
               // Check if the current path is exactly the item href OR if it starts with item href + '/'
               // This prevents '/admin' from matching '/admin/properties'
