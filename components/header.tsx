@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { Menu, X, Sun, Moon, Phone } from 'lucide-react';
+import { Menu, X, Sun, Moon, Phone, ChevronDown } from 'lucide-react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { CONTACT } from '@/lib/constants';
@@ -17,16 +17,24 @@ export function Header() {
   const searchParams = useSearchParams();
   const { theme, setTheme } = useTheme();
 
-  const navItems = [
+  const mainNavItems = [
     { label: 'Home', href: '/', match: (p: string) => p === '/' },
     { label: 'About Us', href: '/about', match: (p: string) => p === '/about' },
     { label: 'Services', href: '/services', match: (p: string) => p === '/services' },
     { label: 'Properties', href: '/properties', match: (p: string) => p === '/properties' || p.startsWith('/properties/') },
-    { label: 'Gallery', href: '/gallery', match: (p: string) => p === '/gallery' },
     { label: 'Contact', href: '/contact', match: (p: string) => p === '/contact' },
     { label: 'Partner With Us', href: '/partner', match: (p: string) => p === '/partner' },
-    { label: 'Join Us', href: '/join-us', match: (p: string) => p === '/join-us' },
   ];
+
+  const moreNavItems = [
+    { label: 'Join Us', href: '/join-us', match: (p: string) => p === '/join-us' },
+    { label: 'Gallery', href: '/gallery', match: (p: string) => p === '/gallery' },
+    { label: 'Maps & Forms', href: '/maps-and-forms', match: (p: string) => p === '/maps-and-forms' },
+
+    { label: 'Calculator', href: '/calculator', match: (p: string) => p === '/calculator' },
+  ];
+
+  const navItems = [...mainNavItems, ...moreNavItems];
 
   const isActive = (item: typeof navItems[0]) => item.match(pathname);
 
@@ -51,12 +59,12 @@ export function Header() {
           </div>
 
           {/* Desktop Navigation — Centered */}
-          <nav className="hidden xl:flex items-center gap-1">
-            {navItems.map((item) => (
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+            {mainNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${isActive(item)
+                className={`px-3 xl:px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${isActive(item)
                   ? 'bg-accent-purple text-white shadow-lg shadow-accent-purple/25'
                   : 'text-gray-600 dark:text-gray-300 hover:text-accent-purple dark:hover:text-accent-purple-light hover:bg-gray-100 dark:hover:bg-white/5'
                   }`}
@@ -64,6 +72,33 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
+
+            {/* More Dropdown */}
+            <div className="relative group">
+              <button
+                className={`flex items-center gap-1 px-3 xl:px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${moreNavItems.some(item => isActive(item))
+                  ? 'bg-accent-purple text-white shadow-lg shadow-accent-purple/25'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-accent-purple dark:hover:text-accent-purple-light hover:bg-gray-100 dark:hover:bg-white/5'
+                  }`}
+              >
+                More
+                <ChevronDown className="w-4 h-4 ml-0.5" />
+              </button>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-48 bg-white dark:bg-navy-800 rounded-xl shadow-xl border border-gray-100 dark:border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2">
+                {moreNavItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`block px-4 py-2 text-sm transition-colors ${isActive(item)
+                      ? 'text-accent-purple dark:text-accent-purple-light bg-accent-purple/10 font-semibold'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
+                      }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </nav>
 
           {/* Right Side Section */}
@@ -131,7 +166,7 @@ export function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="xl:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+              className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -140,7 +175,7 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <nav className="xl:hidden border-t border-gray-200 dark:border-white/10 py-4 space-y-1">
+          <nav className="lg:hidden border-t border-gray-200 dark:border-white/10 py-4 space-y-1">
             {navItems.map((item) => (
               <Link
                 key={item.href}

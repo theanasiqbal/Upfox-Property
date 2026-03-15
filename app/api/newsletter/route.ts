@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db/mongoose';
 import { Newsletter } from '@/lib/db/models/Newsletter';
-import { sendNewsletterWelcome } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
     try {
@@ -17,7 +16,6 @@ export async function POST(req: NextRequest) {
         }
 
         await Newsletter.create({ email });
-        sendNewsletterWelcome(email);
 
         return NextResponse.json({ success: true }, { status: 201 });
     } catch (err) {

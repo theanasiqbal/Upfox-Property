@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import { connectDB } from '@/lib/db/mongoose';
 import { User } from '@/lib/db/models/User';
 import { signToken, setAuthCookie } from '@/lib/jwt';
-import { sendWelcomeEmail } from '@/lib/email';
 
 export const runtime = "nodejs";
 
@@ -43,9 +42,6 @@ export async function POST(req: NextRequest) {
 
         // Sign JWT
         const token = await signToken({ userId: user._id.toString(), email: user.email, role: user.role });
-
-        // Send welcome email (non-blocking)
-        sendWelcomeEmail(user.email, user.name);
 
         const res = NextResponse.json(
             {

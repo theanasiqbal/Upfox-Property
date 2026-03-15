@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 import { ProtectedRoute } from '@/components/protected-route';
 import { SidebarNav } from '@/components/sidebar-nav';
 import { useAuth } from '@/lib/auth-context';
-import { LayoutGrid, Home, CheckCircle, Users, MessageSquare, Handshake, Star, Mail, ArrowLeft, Briefcase, Images } from 'lucide-react';
+import { LayoutGrid, Home, CheckCircle, Users, MessageSquare, Handshake, Star, Mail, ArrowLeft, Briefcase, Images, FileText } from 'lucide-react';
 
 const adminNavItems = [
   {
@@ -66,6 +66,11 @@ const adminNavItems = [
     label: 'Gallery',
     href: '/admin/gallery',
     icon: <Images className="w-5 h-5" />,
+  },
+  {
+    label: 'Maps & Forms',
+    href: '/admin/documents',
+    icon: <FileText className="w-5 h-5" />,
   },
 ];
 

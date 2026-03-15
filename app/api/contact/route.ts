@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db/mongoose';
 import { Contact } from '@/lib/db/models/Contact';
-import { sendContactAutoReply, sendContactAdminAlert } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
     try {
@@ -14,10 +13,6 @@ export async function POST(req: NextRequest) {
         }
 
         const contact = await Contact.create({ name, phone, email, message, propertyInterest, inquiryType });
-
-        // Send auto-reply + admin alert (non-blocking)
-        sendContactAutoReply(email, name);
-        sendContactAdminAlert({ name, email, phone, message });
 
         return NextResponse.json({ success: true, id: contact._id }, { status: 201 });
     } catch (err) {

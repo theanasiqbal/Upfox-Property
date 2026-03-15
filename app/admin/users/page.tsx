@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { AdminPagination } from '@/components/admin-pagination';
 import { AdminExportModal } from '@/components/admin-export-modal';
 import { AdminAddUserModal } from '@/components/admin-add-user-modal';
+import { AdminSendEmailModal } from '@/components/admin-send-email-modal';
 import { exportToExcel, ExportFilters } from '@/lib/export-excel';
-import { CheckCircle, Shield, Trash2, Search, ArrowUpDown, Download, Plus } from 'lucide-react';
+import { CheckCircle, Shield, Trash2, Search, ArrowUpDown, Download, Plus, Mail } from 'lucide-react';
 
 interface IUser {
   _id: string;
@@ -42,6 +43,9 @@ export default function AdminUsersPage() {
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const [showExport, setShowExport] = useState(false);
   const [showAddUser, setShowAddUser] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailTarget, setEmailTarget] = useState<{ mode: 'individual' | 'selected' | 'all', user?: IUser }>({ mode: 'individual' });
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   const [page, setPage] = useState(1);
 
@@ -67,6 +71,7 @@ export default function AdminUsersPage() {
         const data = await res.json();
         setUsers(data.users);
         setPagination(data.pagination);
+        setSelectedIds([]);
       }
     } catch (error) {
       console.error('Error fetching users', error);
@@ -139,6 +144,20 @@ export default function AdminUsersPage() {
     } catch (error) { console.error('Error deleting user', error); }
   };
 
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) setSelectedIds(users.map(u => u._id));
+    else setSelectedIds([]);
+  };
+
+  const handleSelectUser = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const openEmailModal = (mode: 'individual' | 'selected' | 'all', user?: IUser) => {
+    setEmailTarget({ mode, user });
+    setShowEmailModal(true);
+  };
+
   const handleExport = async (filters: ExportFilters) => {
     setIsExporting(true);
     try {
@@ -189,14 +208,14 @@ export default function AdminUsersPage() {
           <p className="text-gray-600 dark:text-gray-400 mt-1">{pagination.total} total users</p>
         </div>
         <div className="flex items-center gap-3">
-          {/* Only full admins can add users */}
-          {!isSubadmin && (
-            <button onClick={() => setShowAddUser(true)} className="flex items-center gap-2 px-4 py-2.5 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
-              <Plus className="w-4 h-4" /> Add Admin
-            </button>
-          )}
+          <button onClick={() => openEmailModal('all')} className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
+            <Mail className="w-4 h-4" /> Send Email
+          </button>
+          <button onClick={() => setShowAddUser(true)} className="flex items-center gap-2 px-4 py-2.5 bg-accent-purple hover:bg-accent-purple/90 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
+            <Plus className="w-4 h-4" /> {isSubadmin ? 'Add User' : 'Add Admin'}
+          </button>
           <button onClick={() => setShowExport(true)} className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
-            <Download className="w-4 h-4" /> Export Excel
+            <Download className="w-4 h-4" /> Export
           </button>
         </div>
       </div>
@@ -258,6 +277,9 @@ export default function AdminUsersPage() {
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10">
                   <tr>
+                    <th className="px-6 py-3 text-left">
+                      <input type="checkbox" checked={selectedIds.length === users.length && users.length > 0} onChange={handleSelectAll} className="w-4 h-4 rounded border-gray-300 text-accent-purple focus:ring-accent-purple" />
+                    </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 cursor-pointer hover:text-accent-purple" onClick={() => toggleSort('name')}>
                       <span className="flex items-center gap-1">Name <ArrowUpDown className="w-3 h-3" /></span>
                     </th>
@@ -266,17 +288,18 @@ export default function AdminUsersPage() {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Phone</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Role</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 cursor-pointer hover:text-accent-purple" onClick={() => toggleSort('registrationDate')}>
                       <span className="flex items-center gap-1">Joined <ArrowUpDown className="w-3 h-3" /></span>
                     </th>
-                    {/* Actions column only shown to full admins */}
-                    {!isSubadmin && <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Actions</th>}
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-white/5">
                   {users.map((user) => (
-                    <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <tr key={user._id} className={`hover:bg-gray-50 dark:hover:bg-white/5 transition-colors ${selectedIds.includes(user._id) ? 'bg-accent-purple/5' : ''}`}>
+                      <td className="px-6 py-4">
+                        <input type="checkbox" checked={selectedIds.includes(user._id)} onChange={() => handleSelectUser(user._id)} className="w-4 h-4 rounded border-gray-300 text-accent-purple focus:ring-accent-purple" />
+                      </td>
                       <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{user.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{user.email}</td>
                       <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{user.phone || '—'}</td>
@@ -285,30 +308,28 @@ export default function AdminUsersPage() {
                           {roleLabel(user.role)}
                         </span>
                       </td>
+                      <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{new Date(user.registrationDate).toLocaleDateString()}</td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs font-medium">Verified</span>
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => openEmailModal('individual', user)} className="p-2 text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-500/10 rounded-lg transition-colors" title="Send Email">
+                            <Mail className="w-4 h-4" />
+                          </button>
+                          {!isSubadmin && (
+                            <>
+                              <button
+                                onClick={() => handleToggleAdmin(user)}
+                                className={`p-2 rounded-lg transition-colors ${user.role === 'admin' ? 'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-500/10' : user.role === 'subadmin' ? 'text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-500/10' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5'}`}
+                                title={`Currently: ${roleLabel(user.role)} — click to cycle role`}
+                              >
+                                <Shield className="w-4 h-4" />
+                              </button>
+                              <button onClick={() => handleDelete(user._id)} className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 rounded-lg transition-colors" title="Delete">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{new Date(user.registrationDate).toLocaleDateString()}</td>
-                      {/* Action buttons — hidden for subadmins */}
-                      {!isSubadmin && (
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleToggleAdmin(user)}
-                              className={`p-2 rounded-lg transition-colors ${user.role === 'admin' ? 'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-500/10' : user.role === 'subadmin' ? 'text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-500/10' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5'}`}
-                              title={`Currently: ${roleLabel(user.role)} — click to cycle role`}
-                            >
-                              <Shield className="w-4 h-4" />
-                            </button>
-                            <button onClick={() => handleDelete(user._id)} className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 rounded-lg transition-colors" title="Delete">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -364,6 +385,7 @@ export default function AdminUsersPage() {
       <AdminAddUserModal
         open={showAddUser}
         onClose={() => setShowAddUser(false)}
+        isSubadmin={isSubadmin}
         onSuccess={(newUser) => {
           setUsers(prev => [newUser, ...prev]);
           setPagination(prev => ({ ...prev, total: prev.total + 1 }));
@@ -371,6 +393,34 @@ export default function AdminUsersPage() {
           if (newUser.role === 'subadmin') fetchSubadminCount();
         }}
       />
+
+      <AdminSendEmailModal
+        open={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        initialMode={emailTarget.mode}
+        initialUser={emailTarget.user ? { id: emailTarget.user._id, name: emailTarget.user.name, email: emailTarget.user.email } : undefined}
+        selectedUserIds={selectedIds}
+      />
+
+      {/* Selection Footer */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 px-6 py-4 bg-gray-900 dark:bg-accent-purple rounded-2xl shadow-2xl flex items-center gap-6 animate-in slide-in-from-bottom-8 duration-300">
+          <div className="flex items-center gap-3 pr-6 border-r border-white/10">
+            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center font-bold text-white">
+              {selectedIds.length}
+            </div>
+            <p className="text-white font-medium">Users selected</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => openEmailModal('selected')} className="px-4 py-2 bg-white text-gray-900 rounded-xl text-sm font-bold hover:bg-gray-100 transition-colors flex items-center gap-2">
+              <Mail className="w-4 h-4" /> Email Selected
+            </button>
+            <button onClick={() => setSelectedIds([])} className="px-4 py-2 text-white/70 hover:text-white text-sm font-medium transition-colors">
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

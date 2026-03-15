@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/lib/auth-context';
-import { User, Mail, Phone, Lock, AlertCircle } from 'lucide-react';
+import { User, Mail, Phone, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 
 interface SignupFormData {
@@ -23,7 +23,6 @@ export default function SignupPage() {
   const { register, handleSubmit, formState: { errors }, watch, setError } = useForm<SignupFormData>();
   const [generalError, setGeneralError] = useState<string>('');
 
-
   const onSubmit = async (data: SignupFormData) => {
     try {
       setGeneralError('');
@@ -37,89 +36,121 @@ export default function SignupPage() {
   };
 
   const inputClass = (hasError: boolean) =>
-    `w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-white/5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent-purple/30 focus:border-accent-purple text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all ${hasError ? 'border-red-500 bg-red-50 dark:bg-red-500/5' : 'border-gray-200 dark:border-white/10'
+    `w-full pl-11 pr-4 py-3 bg-white/5 hover:bg-white/10 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent-purple/50 focus:border-accent-purple text-white placeholder:text-white/50 transition-all duration-300 ${
+      hasError 
+        ? 'border-red-500 bg-red-500/10' 
+        : 'border-white/10 hover:border-white/20'
     }`;
 
   return (
-    <div className="h-screen bg-gray-50 dark:bg-navy-800 flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Decorative background blobs */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-accent-purple/10 dark:bg-accent-purple/20 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent-purple/5 dark:bg-accent-cyan/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3" />
-      <div className="absolute top-1/2 left-1/3 w-40 h-40 bg-accent-purple/5 dark:bg-accent-purple/10 rounded-full blur-2xl" />
-
-      {/* Dark mode particles */}
-      <div className="hidden dark:block particles-container">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} className="particle" style={{ left: `${Math.random() * 100}%`, animationDuration: `${12 + Math.random() * 18}s`, animationDelay: `${Math.random() * 8}s` }} />
-        ))}
+    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
+      
+      {/* --- BACKGROUND IMAGE & OVERLAYS --- */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="https://images.unsplash.com/photo-1628624747186-a941c476b7ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+          alt="Premium Architecture"
+          fill
+          priority
+          className="object-cover"
+        />
+        {/* Deep, minimal overlay focusing the user on the form */}
+        <div className="absolute inset-0 bg-navy-900/85 backdrop-blur-[3px]" />
+        
+        {/* Subtle accent glows behind the card */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-cyan/20 rounded-full blur-[120px] pointer-events-none" />
       </div>
 
-      <div className="w-full max-w-sm relative z-10">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Image
-            src="/upfoxx logo.png"
-            alt="Upfoxx Floors"
-            width={50}
-            height={50}
-            className="rounded-lg"
-          />
-          <span className="text-2xl font-bold text-gray-900 dark:text-white">Upfoxx Properties</span>
+      {/* --- TOP LEFT LOGO --- */}
+      <div className="absolute top-6 left-6 md:top-8 md:left-10 z-20">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative w-10 h-10 overflow-hidden rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.2)] group-hover:scale-105 transition-all duration-300">
+            <Image
+              src="/upfoxx logo.png"
+              alt="Upfoxx Floors"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <span className="text-xl font-bold text-white font-heading tracking-wide drop-shadow-md">
+            Upfoxx Floors
+          </span>
+        </Link>
+      </div>
+
+      {/* --- CENTERED FORM CARD --- */}
+      <div className="relative z-10 w-full max-w-lg mt-16 md:mt-0 bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+        
+        {/* Heading */}
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-white mb-2 font-heading tracking-tight drop-shadow-sm">
+            Create an account
+          </h1>
+          <p className="text-white/70 text-sm">
+            Join our exclusive property marketplace.
+          </p>
         </div>
 
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-0.5">Create an account</h1>
-        <p className="text-sm text-center text-gray-500 dark:text-gray-400 mb-4">Join our property marketplace</p>
-
-        {/* Error */}
+        {/* Error Message */}
         {generalError && (
-          <div className="flex gap-2.5 p-3 mb-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl">
-            <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-700 dark:text-red-300">{generalError}</p>
+          <div className="flex gap-3 p-4 mb-6 bg-red-500/10 border border-red-500/20 rounded-xl backdrop-blur-md animate-in fade-in zoom-in-95">
+            <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 shrink-0" />
+            <p className="text-sm text-red-200 font-medium leading-relaxed">{generalError}</p>
           </div>
         )}
 
-        {/* Form Card */}
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-white dark:bg-white/5 dark:backdrop-blur-2xl rounded-2xl shadow-lg dark:shadow-none border border-gray-100 dark:border-white/10 p-5 space-y-3">
-          {/* Role Selector */}
-
-          {/* Name & Phone row */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="name" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Full Name</label>
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Name Field */}
+            <div className="space-y-1 group">
+              <label htmlFor="name" className="block text-sm font-semibold text-white/90 group-focus-within:text-accent-cyan transition-colors mt-1">
+                Full Name
+              </label>
               <div className="relative">
-                <User className="absolute left-3 top-2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 group-focus-within:text-accent-cyan transition-colors" />
                 <input
                   id="name"
                   type="text"
-                  {...register('name', { required: 'Required' })}
+                  {...register('name', { required: 'Name is required' })}
                   className={inputClass(!!errors.name)}
                   placeholder="John Doe"
                 />
               </div>
-              {errors.name && <p className="text-red-500 text-xs mt-0.5">{errors.name.message}</p>}
+              {errors.name && (
+                <p className="text-red-400 text-xs font-medium mt-1 animate-in slide-in-from-top-1">{errors.name.message}</p>
+              )}
             </div>
-            <div>
-              <label htmlFor="phone" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Phone</label>
+
+            {/* Phone Field */}
+            <div className="space-y-1 group">
+              <label htmlFor="phone" className="block text-sm font-semibold text-white/90 group-focus-within:text-accent-cyan transition-colors mt-1">
+                Phone Number
+              </label>
               <div className="relative">
-                <Phone className="absolute left-3 top-2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 group-focus-within:text-accent-cyan transition-colors" />
                 <input
                   id="phone"
                   type="tel"
-                  {...register('phone', { required: 'Required' })}
+                  {...register('phone', { required: 'Phone is required' })}
                   className={inputClass(!!errors.phone)}
                   placeholder="+1 555 1234"
                 />
               </div>
-              {errors.phone && <p className="text-red-500 text-xs mt-0.5">{errors.phone.message}</p>}
+              {errors.phone && (
+                <p className="text-red-400 text-xs font-medium mt-1 animate-in slide-in-from-top-1">{errors.phone.message}</p>
+              )}
             </div>
           </div>
 
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Email</label>
+          {/* Email Field */}
+          <div className="space-y-1 group">
+            <label htmlFor="email" className="block text-sm font-semibold text-white/90 group-focus-within:text-accent-cyan transition-colors mt-1">
+              Email Address
+            </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50 group-focus-within:text-accent-cyan transition-colors" />
               <input
                 id="email"
                 type="email"
@@ -128,35 +159,45 @@ export default function SignupPage() {
                   pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email' },
                 })}
                 className={inputClass(!!errors.email)}
-                placeholder="you@example.com"
+                placeholder="name@example.com"
               />
             </div>
-            {errors.email && <p className="text-red-500 text-xs mt-0.5">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-red-400 text-xs font-medium mt-1 animate-in slide-in-from-top-1">{errors.email.message}</p>
+            )}
           </div>
 
-          {/* Password row */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="password" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Password</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Password Field */}
+            <div className="space-y-1 group">
+              <label htmlFor="password" className="block text-sm font-semibold text-white/90 group-focus-within:text-accent-cyan transition-colors mt-1">
+                Password
+              </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 group-focus-within:text-accent-cyan transition-colors" />
                 <input
                   id="password"
                   type="password"
                   {...register('password', {
                     required: 'Required',
-                    minLength: { value: 8, message: 'Min 8 chars' },
+                    minLength: { value: 8, message: 'Min 8 characters' },
                   })}
                   className={inputClass(!!errors.password)}
                   placeholder="••••••••"
                 />
               </div>
-              {errors.password && <p className="text-red-500 text-xs mt-0.5">{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-red-400 text-xs font-medium mt-1 animate-in slide-in-from-top-1">{errors.password.message}</p>
+              )}
             </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Confirm</label>
+
+            {/* Confirm Password Field */}
+            <div className="space-y-1 group">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-white/90 group-focus-within:text-accent-cyan transition-colors mt-1">
+                Confirm Password
+              </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 group-focus-within:text-accent-cyan transition-colors" />
                 <input
                   id="confirmPassword"
                   type="password"
@@ -165,48 +206,63 @@ export default function SignupPage() {
                   placeholder="••••••••"
                 />
               </div>
-              {errors.confirmPassword && <p className="text-red-500 text-xs mt-0.5">{errors.confirmPassword.message}</p>}
+              {errors.confirmPassword && (
+                <p className="text-red-400 text-xs font-medium mt-1 animate-in slide-in-from-top-1">{errors.confirmPassword.message}</p>
+              )}
             </div>
           </div>
 
-          {/* Terms */}
-          <div className="flex items-start gap-2">
-            <input
-              id="terms"
-              type="checkbox"
-              {...register('terms')}
-              className="w-3.5 h-3.5 mt-0.5 text-accent-purple rounded border-gray-300 dark:border-white/20 dark:bg-white/5"
-            />
-            <label htmlFor="terms" className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+          {/* Terms and Conditions */}
+          <div className="flex items-start gap-3 pt-2">
+            <div className="relative flex items-center justify-center mt-1">
+              <input 
+                id="terms"
+                type="checkbox" 
+                {...register('terms')}
+                className="w-4 h-4 peer appearance-none rounded border-2 border-white/20 bg-white/5 checked:border-accent-purple checked:bg-accent-purple transition-all duration-200 cursor-pointer" 
+              />
+              <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <label htmlFor="terms" className="text-sm text-white/70 leading-snug cursor-pointer hover:text-white transition-colors">
               I agree to the{' '}
-              <a href="#" className="text-accent-purple font-medium">Terms</a> and{' '}
-              <a href="#" className="text-accent-purple font-medium">Privacy Policy</a>
+              <a href="#" className="font-semibold text-accent-cyan hover:text-white transition-colors">
+                Terms of Service
+              </a>{' '}
+              and our{' '}
+              <a href="#" className="font-semibold text-accent-cyan hover:text-white transition-colors">
+                Privacy Policy
+              </a>.
             </label>
           </div>
+          {errors.terms && <p className="text-red-400 text-xs font-medium animate-in slide-in-from-top-1">{errors.terms.message}</p>}
 
-          {/* Submit */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2.5 btn-gradient text-sm font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full relative group overflow-hidden py-3.5 mt-2 btn-gradient rounded-xl text-base font-bold shadow-lg shadow-black/20 hover:shadow-accent-purple/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 border border-white/10"
           >
-            {isLoading ? 'Creating account...' : 'Create Account'}
+            <span className="relative z-10 flex items-center justify-center gap-2 text-white">
+              {isLoading ? 'Creating account...' : 'Create Account'}
+              {!isLoading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+            </span>
           </button>
         </form>
 
-        {/* Footer links */}
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
-          Already have an account?{' '}
-          <Link href="/auth/login" className="text-accent-purple hover:text-accent-purple-dark font-semibold transition-colors">
-            Sign in
-          </Link>
-        </p>
-        <div className="text-center mt-2">
-          <Link href="/" className="text-xs text-gray-400 dark:text-gray-500 hover:text-accent-purple transition-colors">
-            ← Back to Home
-          </Link>
+        {/* Footer */}
+        <div className="mt-8 pt-6 border-t border-white/10 text-center">
+          <p className="text-white/70 text-sm">
+            Already have an account?{' '}
+            <Link href="/auth/login" className="font-bold text-white hover:text-accent-purple-light transition-colors">
+              Sign in here
+            </Link>
+          </p>
         </div>
+
       </div>
+    
     </div>
   );
 }

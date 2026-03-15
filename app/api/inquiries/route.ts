@@ -4,7 +4,6 @@ import { Inquiry } from '@/lib/db/models/Inquiry';
 import { Property } from '@/lib/db/models/Property';
 import { User } from '@/lib/db/models/User';
 import { getUserFromCookies } from '@/lib/jwt';
-import { sendInquiryNotificationEmail } from '@/lib/email';
 
 // POST /api/inquiries — public
 export async function POST(req: NextRequest) {

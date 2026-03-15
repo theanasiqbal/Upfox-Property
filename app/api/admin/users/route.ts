@@ -110,7 +110,12 @@ export async function DELETE(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     try {
-        if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const payload = await getUserFromCookies();
+        const currentUserRole = payload?.role;
+
+        if (currentUserRole !== 'admin' && currentUserRole !== 'subadmin') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
         const body = await req.json();
         const { name, email, password, phone, role } = body;
@@ -122,7 +127,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
         }
 
-        const userRole = ['admin', 'subadmin', 'user'].includes(role) ? role : 'admin';
+        if (currentUserRole === 'subadmin' && role !== 'user') {
+            return NextResponse.json({ error: 'Subadmins can only create regular users' }, { status: 403 });
+        }
+
+        const userRole = ['admin', 'subadmin', 'user'].includes(role) ? role : 'user';
 
         await connectDB();
         const existing = await User.findOne({ email: email.toLowerCase() });

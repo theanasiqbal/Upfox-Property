@@ -3,7 +3,6 @@ import { connectDB } from '@/lib/db/mongoose';
 import { Property } from '@/lib/db/models/Property';
 import { User } from '@/lib/db/models/User';
 import { getUserFromCookies } from '@/lib/jwt';
-import { sendPropertyStatusEmail } from '@/lib/email';
 
 // PATCH /api/properties/[id]/status — admin only
 export async function PATCH(
@@ -31,17 +30,6 @@ export async function PATCH(
         );
         if (!property) return NextResponse.json({ error: 'Property not found' }, { status: 404 });
 
-        // Notify seller
-        const seller = await User.findById(property.sellerId).lean();
-        if (seller) {
-            sendPropertyStatusEmail(
-                seller.email,
-                seller.name,
-                property.title,
-                status,
-                rejectionReason
-            );
-        }
 
         return NextResponse.json({ property });
     } catch (err) {

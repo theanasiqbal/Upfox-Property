@@ -53,6 +53,7 @@ export function Footer() {
                 { label: 'Properties', href: '/properties' },
                 { label: 'Services', href: '/services' },
                 { label: 'About Us', href: '/about' },
+                { label: 'Maps & Forms', href: '/maps-and-forms' },
                 { label: 'Contact', href: '/contact' },
                 { label: 'Partner With Us', href: '/partner' },
               ].map((link) => (

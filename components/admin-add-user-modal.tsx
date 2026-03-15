@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, UserPlus, Mail, Lock, Phone, User as UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -8,9 +8,10 @@ interface AdminAddUserModalProps {
     open: boolean;
     onClose: () => void;
     onSuccess: (newUser: any) => void;
+    isSubadmin?: boolean;
 }
 
-export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModalProps) {
+export function AdminAddUserModal({ open, onClose, onSuccess, isSubadmin }: AdminAddUserModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -19,6 +20,12 @@ export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModa
         phone: '',
         role: 'subadmin' as 'admin' | 'subadmin' | 'user',
     });
+
+    useEffect(() => {
+        if (open) {
+            setFormData(prev => ({ ...prev, role: isSubadmin ? 'user' : 'subadmin' }));
+        }
+    }, [open, isSubadmin]);
 
     if (!open) return null;
 
@@ -45,7 +52,7 @@ export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModa
             onSuccess(data.user);
             onClose();
             // Reset form
-            setFormData({ name: '', email: '', password: '', phone: '', role: 'subadmin' });
+            setFormData({ name: '', email: '', password: '', phone: '', role: isSubadmin ? 'user' : 'subadmin' });
         } catch (error: any) {
             toast.error(error.message);
         } finally {
@@ -153,7 +160,7 @@ export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModa
                         {/* Role selection */}
                         <div>
                             <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Account Role</label>
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className={`grid gap-3 ${isSubadmin ? 'grid-cols-1' : 'grid-cols-3'}`}>
                                 <button
                                     type="button"
                                     onClick={() => setFormData({ ...formData, role: 'user' })}
@@ -164,26 +171,30 @@ export function AdminAddUserModal({ open, onClose, onSuccess }: AdminAddUserModa
                                 >
                                     Regular User
                                 </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, role: 'subadmin' })}
-                                    className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${formData.role === 'subadmin'
-                                            ? 'bg-blue-100 border-blue-400 text-blue-800 dark:bg-blue-500/20 dark:border-blue-500/50 dark:text-blue-400'
-                                            : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-blue-500/50'
-                                        }`}
-                                >
-                                    Sub-Admin
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, role: 'admin' })}
-                                    className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${formData.role === 'admin'
-                                            ? 'bg-amber-100 border-amber-400 text-amber-800 dark:bg-amber-500/20 dark:border-amber-500/50 dark:text-amber-400'
-                                            : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-amber-500/50'
-                                        }`}
-                                >
-                                    Administrator
-                                </button>
+                                {!isSubadmin && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, role: 'subadmin' })}
+                                            className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${formData.role === 'subadmin'
+                                                    ? 'bg-blue-100 border-blue-400 text-blue-800 dark:bg-blue-500/20 dark:border-blue-500/50 dark:text-blue-400'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-blue-500/50'
+                                                }`}
+                                        >
+                                            Sub-Admin
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, role: 'admin' })}
+                                            className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${formData.role === 'admin'
+                                                    ? 'bg-amber-100 border-amber-400 text-amber-800 dark:bg-amber-500/20 dark:border-amber-500/50 dark:text-amber-400'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-white/5 dark:border-white/10 dark:text-gray-400 hover:border-amber-500/50'
+                                                }`}
+                                        >
+                                            Administrator
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

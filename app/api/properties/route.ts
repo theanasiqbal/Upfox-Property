@@ -3,7 +3,6 @@ import { connectDB } from '@/lib/db/mongoose';
 import { Property } from '@/lib/db/models/Property';
 import { User } from '@/lib/db/models/User';
 import { getUserFromCookies } from '@/lib/jwt';
-import { sendNewPropertyAdminAlert } from '@/lib/email';
 
 // GET /api/properties — public, filtered
 export async function GET(req: NextRequest) {
@@ -78,10 +77,6 @@ export async function POST(req: NextRequest) {
             status: isAdmin ? 'approved' : 'pending',
         });
 
-        // Notify admin (non-blocking) - only if regular user posted it
-        if (!isAdmin) {
-            sendNewPropertyAdminAlert(property.title, seller.name, seller.email);
-        }
 
         return NextResponse.json({ property }, { status: 201 });
     } catch (err) {
